@@ -15,7 +15,7 @@ class CutValues {
   static const int ELECTRON_PDGID = 11;
   static const int MUON_PDGID = 13;
   static const int TAU_PDGID = 15;
-   static const int FINAL_STATE_STATUS = 1; 
+  static const int FINAL_STATE_STATUS = 1; 
 
   static const int NONPROMPT_BIT_MASK = 4; 
   static const float PHOTON_CANDIDATE_MIN_PT = 15;
@@ -38,6 +38,13 @@ class CutValues {
 							    lep_moms + 
 							    sizeof lep_moms / sizeof lep_moms[0]);
     return LEPTON_CANDIDATE_PARENT_PDGIDS;
+  }
+
+  static vector<int> NEUTRINO_CANDIDATE_PARENT_PDGIDS(){int nu_moms[8] = {1,2,3,4,5,15, 21, 24};
+    static const vector<int> NEUTRINO_CANDIDATE_PARENT_PDGIDS(nu_moms,
+							    nu_moms + 
+							    sizeof nu_moms / sizeof nu_moms[0]);
+    return NEUTRINO_CANDIDATE_PARENT_PDGIDS;
   }
 
   static vector<int> NEUTRINO_PDGIDS(){

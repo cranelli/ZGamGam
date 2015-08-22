@@ -13,15 +13,13 @@ using namespace std;
 
 /*
  * Pass if the event has the right number of candidate leptons.
- * (Electron and Muon Channel are completely separate channels.)
+ * (Either electron channel and no muons, or visa versa)
  */
 
 bool EventCuts::PassLeptonMultiplicity(vector<MCParticleData> & candidate_electrons,
 				       vector<MCParticleData> & candidate_muons){
-  bool pass = false;
-  if( candidate_electrons.size() == CutValues::REQ_NUM_CANDIDATE_LEPTONS && candidate_muons.size() == 0) pass =true;
-  if( candidate_electrons.size() == 0 && candidate_muons.size() == CutValues::REQ_NUM_CANDIDATE_LEPTONS) pass =true;
-  return pass;
+  //bool pass = false;
+  return ( candidate_electrons.size() == CutValues::REQ_NUM_CANDIDATE_LEPTONS && candidate_muons.size() == 0) || ( candidate_electrons.size() == 0 && candidate_muons.size() == CutValues::REQ_NUM_CANDIDATE_LEPTONS);
 }
 
 bool EventCuts::PassPhotonMultiplicity(vector<MCParticleData> & candidate_photons){

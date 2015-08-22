@@ -11,6 +11,7 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include "TH1F.h"
 #include <TLorentzVector.h>
 
 #include "mc_particle_data.h"
@@ -109,6 +110,11 @@ public :
    //vector<MCParticleData> AssignParticleByIDandStatus(vector<int> & pdgIDs, int status);
    vector<MCParticleData> AssignParticleByIDandStatus(int pdgID, int status);
    vector<MCParticleData> AssignParticleByIDandStatus(vector<int> pdgIDs, int status);
+   void MakeCheckHistograms(HistogramBuilder & histograms, string prefix,  
+			    vector<MCParticleData> photons, 
+			    vector<MCParticleData> electrons,  
+			    vector<MCParticleData> muons,
+			    vector<MCParticleData> neutrinos);
    MCParticleData MakeParticle(int mc_index); 
 
 };

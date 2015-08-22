@@ -32,15 +32,31 @@ HistogramBuilder::HistogramBuilder(){
  */
 
 void HistogramBuilder::FillCutFlowHistograms(string key, int cut_step, double weight){
-  if(!_h1CutFlow.count(key)){
-    _h1CutFlow[key] = new TH1F(Form("%s_CutFlow",key.c_str()),
+  if(!_histograms.count(key)){
+    _histograms[key] = new TH1F(Form("%s_CutFlow",key.c_str()),
 			       Form("%s CutFlow",key.c_str()),
 			       10, 0, 10);
-    _h1CutFlow[key]->GetYaxis()->SetTitle("CutFlow");
-    _h1CutFlow[key]->Sumw2();
+    _histograms[key]->GetYaxis()->SetTitle("CutFlow");
+    _histograms[key]->Sumw2();
   }
-  _h1CutFlow[key]->Fill(cut_step, weight);
+  _histograms[key]->Fill(cut_step, weight);
 }
+
+/*
+ *Pt Histograms
+ */
+void HistogramBuilder::fillPtHistograms(string key, float pt, double weight){
+  if(!_histograms.count(key)){
+        
+    _histograms[key] = new TH1F(Form("%s_Pt",key.c_str()),
+					  Form("%s Pt",key.c_str()),
+					  100,0,200);
+    SetAxises(_histograms[key],"Pt (GeV)", "Counts");
+    _histograms[key]->Sumw2();
+  } 
+  _histograms[key]->Fill(pt, weight);
+}
+
 
 /*
  *Counting Histograms
@@ -188,19 +204,6 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2,
 
 
 /*
- *Pt Histograms
- */
-void HistogramBuilder::fillPtHistograms(float pt, string key, double weight){
-  if(!_h1Pt.count(key)){
-        
-    _h1Pt[key] = new TH1F(Form("%s_Pt",key.c_str()),
-					  Form("%s Pt",key.c_str()),
-					  1000,0,500);
-    SetAxises(_h1Pt[key],"Pt (GeV)", "Counts");
-    _h1Pt[key]->Sumw2();
-  } 
-  _h1Pt[key]->Fill(pt, weight);
-
 if(!_h1InvPt.count(key)){
         
     _h1InvPt[key] = new TH1F(Form("%s_InvPt",key.c_str()),
@@ -210,7 +213,7 @@ if(!_h1InvPt.count(key)){
     _h1InvPt[key]->Sumw2();
   } 
  _h1InvPt[key]->Fill(1.0/pt, weight);
-}
+*/
 
 /*
  * Scatter Pt Plot
@@ -228,35 +231,6 @@ void HistogramBuilder::fillScatterPt(float pt1, float pt2, string key, double we
 }
 
 
-
-/*
- *L1Muon Pt Histograms
- *has variable binning
- */
-void HistogramBuilder::fillL1MuonPtHistograms(float pt, string key, double weight){
-  if(!_h1L1MuonPt.count(key)){    
-    //From 20 million event sample
-    float variableBinArray[] = {0,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,90,100,120,140,200};
-
-    //From 2 million event sample
-    //float variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,180};
-    
-    _h1L1MuonPt[key] = new TH1F(Form("%s_Pt",key.c_str()),
-				Form("%s Pt",key.c_str()),
-				30,variableBinArray);
-    SetAxises(_h1L1MuonPt[key], "L1Muon Pt", "Counts");
-    _h1L1MuonPt[key]->Sumw2();
-  }
-  _h1L1MuonPt[key]->Fill(pt, weight);
-}         
-
-/*
-int HistogramBuilder::getMyNumber(){
-  return mynumber;
-};
-*/
-
-
 /*
  *
  * Helper Functions
@@ -264,6 +238,25 @@ int HistogramBuilder::getMyNumber(){
  */
 
 
+void HistogramBuilder::SetAxises(TH1 * h1, string xTitle, string yTitle){
+  // X Axis
+  h1->GetXaxis()->SetTitle(xTitle.c_str());
+  h1->GetXaxis()->SetTitleFont(42);
+  h1->GetXaxis()->SetTitleSize(0.05);
+  h1->GetXaxis()->SetTitleOffset(0.9);
+  
+  // Y Axis
+  h1->GetYaxis()->SetTitle(yTitle.c_str());
+  h1->GetYaxis()->SetTitleFont(42);
+  h1->GetYaxis()->SetTitleSize(0.05);
+  h1->GetYaxis()->SetTitleOffset(1.0);
+
+  h1->SetLineWidth(2);
+  h1->SetLineColor(kBlue);
+
+}
+
+/*
 void HistogramBuilder::SetAxises(TH1F * h1, string xTitle, string yTitle){
   // X Axis
   h1->GetXaxis()->SetTitle(xTitle.c_str());
@@ -297,6 +290,7 @@ void HistogramBuilder::SetAxises(TH2F * h2, string xTitle, string yTitle){
   h2->SetLineWidth(2);
   h2->SetLineColor(kBlue);
 }
+*/
 
 /*
  * Handles wrapping between two angles.

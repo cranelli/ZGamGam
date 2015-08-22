@@ -86,6 +86,7 @@ vector<MCParticleData> ObjectCuts::SelectNeutrinos(vector<MCParticleData> & neut
   for(unsigned int index =0; index < neutrinos.size(); index++){
     MCParticleData  neutrino = neutrinos.at(index);
     if(!PassPromptCut(neutrino, CutValues::NONPROMPT_BIT_MASK)) continue;
+    if(!PassParentCut(neutrino, CutValues::NEUTRINO_CANDIDATE_PARENT_PDGIDS())) continue;
     
     select_neutrinos.push_back(neutrino);
   }
@@ -98,11 +99,11 @@ bool PassPtCut(MCParticleData & particle, float min_pt){
 }
 
 bool PassEtaCut(MCParticleData & particle, float max_eta){
-  return (particle.GetFourVector().Eta() < max_eta);
+  return (abs(particle.GetFourVector().Eta()) < max_eta);
 }
 
-bool PassPromptCut(MCParticleData & particle, int prompt_bit_mask){
-  return ((particle.GetMCParentage() & prompt_bit_mask) != prompt_bit_mask);
+bool PassPromptCut(MCParticleData & particle, int non_prompt_bit_mask){
+  return ((particle.GetMCParentage() & non_prompt_bit_mask) != non_prompt_bit_mask);
 }
 
 /*
@@ -111,7 +112,7 @@ bool PassPromptCut(MCParticleData & particle, int prompt_bit_mask){
 bool PassParentCut(MCParticleData & particle, vector<int> parent_pdgIDs){
   bool pass = false;
   for(unsigned int index=0; index < parent_pdgIDs.size(); index++){
-    if(particle.GetMomPID() == parent_pdgIDs[index]) pass = true;
+    if(abs(particle.GetMomPID()) == parent_pdgIDs[index]) pass = true;
   }
   return pass;
    

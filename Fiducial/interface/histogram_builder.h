@@ -26,10 +26,9 @@ class HistogramBuilder{
    */
   
   void FillCutFlowHistograms(string key, int cut_step, double weight=1);
-  map<string, TH1F *> GetHistograms() { return _h1CutFlow;};
+  map<string, TH1 *> GetHistograms() { return _histograms;};
 
-  void fillL1MuonPtHistograms(float pt, string key, double weight=1);
-  void fillPtHistograms(float pt, string key, double weight=1);
+  void fillPtHistograms(string key, float pt,  double weight=1);
   void fillEnergyHistograms(float energy, string key, double weight=1);     
   void fillEtaPhiHistograms(float eta, float phi, string key, double weight=1);
   void fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2, 
@@ -44,8 +43,9 @@ class HistogramBuilder{
 
  private:
   
-  map<string, TH1F*> _h1CutFlow;
-  map<string,TH1F*> _h1L1MuonPt;
+  map<string, TH1*> _histograms;
+
+  //map<string, TH1F*> _h1CutFlow;
   map<string,TH1F*> _h1Pt;
   map<string,TH1F*> _h1InvPt;
   map<string,TH2F*> _h2ScatterPt;
@@ -64,9 +64,10 @@ class HistogramBuilder{
    * Helper Functions
    */
 
-  void SetAxises(TH1F * h1, string xtitle, string ytitle);
-  void SetAxises(TH2F * h2, string xtitle, string ytitle);
-  //float WrapCheck(float phi1, float phi2);
+  void SetAxises(TH1 * h1, string xtitle, string ytitle);
+
+  //void SetAxises(TH1F * h1, string xtitle, string ytitle);
+  //void SetAxises(TH2F * h2, string xtitle, string ytitle);
   
 };
 
