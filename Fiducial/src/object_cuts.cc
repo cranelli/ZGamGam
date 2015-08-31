@@ -14,8 +14,8 @@ using namespace std;
 
 bool PassPtCut(MCParticleData & particle, float min_pt);
 bool PassEtaCut(MCParticleData & particle, float max_eta); 
-bool PassPromptCut(MCParticleData & particle, int prompt_bit_mask);
-bool PassParentCut(MCParticleData & particle, vector<int> parent_pdgIDs);
+//bool PassPromptCut(MCParticleData & particle, int prompt_bit_mask);
+//bool PassParentCut(MCParticleData & particle, vector<int> parent_pdgIDs);
 
 
 /*
@@ -60,6 +60,26 @@ vector<MCParticleData> ObjectCuts::SelectPhotons(vector<MCParticleData> & photon
   return select_photons;
 }
 
+/*
+ * Selection for Candidate Photons Used in Dressing
+ * Mainly they can not be from Jets.
+ */
+
+vector<MCParticleData> ObjectCuts::SelectDressPhotons(vector<MCParticleData> & photons){
+  vector<MCParticleData> select_photons;
+
+  //  for(vector<MCParticleData>::iterator it = particles.begin(); it != particles.end(); ++it){
+  for(unsigned int index =0; index < photons.size(); index++){
+    MCParticleData  photon = photons.at(index);
+
+    if(!PassPromptCut(photon, CutValues::NONPROMPT_BIT_MASK)) continue;
+    
+    select_photons.push_back(photon);
+  }
+  return select_photons;
+}
+
+
 vector<MCParticleData> ObjectCuts::SelectLeptons(vector<MCParticleData> & leptons){
   
   vector<MCParticleData> select_leptons;
@@ -102,14 +122,14 @@ bool PassEtaCut(MCParticleData & particle, float max_eta){
   return (abs(particle.GetFourVector().Eta()) < max_eta);
 }
 
-bool PassPromptCut(MCParticleData & particle, int non_prompt_bit_mask){
+bool ObjectCuts::PassPromptCut(MCParticleData & particle, int non_prompt_bit_mask){
   return ((particle.GetMCParentage() & non_prompt_bit_mask) != non_prompt_bit_mask);
 }
 
 /*
  * If any of the pdgIDs match, return true.
  */
-bool PassParentCut(MCParticleData & particle, vector<int> parent_pdgIDs){
+bool ObjectCuts::PassParentCut(MCParticleData & particle, vector<int> parent_pdgIDs){
   bool pass = false;
   for(unsigned int index=0; index < parent_pdgIDs.size(); index++){
     if(abs(particle.GetMomPID()) == parent_pdgIDs[index]) pass = true;

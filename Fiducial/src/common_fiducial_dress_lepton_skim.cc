@@ -1,5 +1,10 @@
-#define CommonFiducialSkim_cxx
-#include "common_fiducial_skim.h"
+/*
+ * Example Execution
+ * ./CommonFiducialDressLeptonSkim.exe "/data/users/cranelli/WGamGam/NLO_ggNtuples/CustomForDress/TruthSkim/job_NLO_WAA_ISR_PtG500MeV_TruthSkim.root" "ISR_CommonFiducialDressLepton_NLO_wMT_SKIM.root"
+ */
+
+#define CommonFiducialDressLeptonSkim_cxx
+#include "common_fiducial_dress_lepton_skim.h"
 
 #include "TFile.h"
 #include "TDirectory.h"
@@ -23,42 +28,49 @@
 //#include "mc_particle_identification.h"
 
 using namespace std;
-string IN_FILE_NAME ="/data/users/cranelli/WGamGam/NLO_ggNtuples/TruthSkim/job_NLO_WAA_ISR_TruthSkim.root";
+//string IN_FILE_NAME ="/data/users/cranelli/WGamGam/NLO_ggNtuples/TruthSkim/job_NLO_WAA_ISR_PtG500MeV_TruthSkim.root";
 string ORIG_TREE_LOC = "ggNtuplizer/EventTree";
-
-string OUT_FILE_NAME= "ISR_CommonFiducial_NLO_wMT_SKIM.root";
+//string OUT_FILE_NAME= "ISR_CommonFiducialDressLepton_NLO_wMT_SKIM.root";
 
 
 void MakeParticleDataHistograms(HistogramBuilder & histograms, string prefix, vector<MCParticleData> particles);
 
-int main(){
+int main(int argc, char * argv[]){
+  //Catch if the user does not supply enough command line arguments                                                             
+  if(argc !=3){
+    cout << "useage: " << argv[0] << " <infilename> <outfilename>" << endl;
+    return 0;
+  }
+  string in_file_name = argv[1];
+  string out_file_name = argv[2];
+
   cout << "hello world" << endl;
-  TFile * infile = new TFile(IN_FILE_NAME.c_str(), "READ");
+  TFile * infile = new TFile(in_file_name.c_str(), "READ");
   TTree * orig_tree = (TTree *) infile->Get(ORIG_TREE_LOC.c_str());
 
-  TFile * outfile = new TFile(OUT_FILE_NAME.c_str(), "RECREATE");
+  TFile * outfile = new TFile(out_file_name.c_str(), "RECREATE");
   TDirectory * skim_directory = outfile->mkdir("ggNtuplizer");
   skim_directory->cd();
   TTree * skim_tree = orig_tree->CloneTree(0);   
   HistogramBuilder  histograms;
 
-  CommonFiducialSkim skimmer(orig_tree);
+  CommonFiducialDressLeptonSkim skimmer(orig_tree);
   skimmer.Loop(skim_tree, histograms);
   skim_tree->Write();
   
   map<string, TH1 *> hists = histograms.GetHistograms();
   for(map<string,TH1 *>::iterator it = hists.begin(); it != hists.end(); ++it){
     it->second->Write();
-  }
-  
+  }  
   //outfile->Write();
 }
 
-void CommonFiducialSkim::Loop(TTree * skim_tree, HistogramBuilder & histograms)
+void CommonFiducialDressLeptonSkim::Loop(TTree * skim_tree, HistogramBuilder & histograms)
 {
+  
    if (fChain == 0) return;
    Long64_t nentries = fChain->GetEntriesFast();
-   //Long64_t nentries = 100000;
+   //Long64_t nentries = 10000;
 
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
      fChain->GetEntry(jentry);
@@ -73,7 +85,7 @@ void CommonFiducialSkim::Loop(TTree * skim_tree, HistogramBuilder & histograms)
       * Normalized to plus minus 1
       */
 
-     int nlo_weight =1;
+     double nlo_weight =1;
      if (LHEWeight_weights->at(0) < 0) nlo_weight = -1;
 
      /*
@@ -94,15 +106,32 @@ void CommonFiducialSkim::Loop(TTree * skim_tree, HistogramBuilder & histograms)
      MakeCheckHistograms(histograms, "Assign", photons, 
 			 electrons, muons, neutrinos);
 
+     /*
+      * Dressing
+      */
+     
+     vector<MCParticleData> dressing_photons = ObjectCuts::SelectDressPhotons(photons);
+     MakeCheckHistograms(histograms, "Dress0", dressing_photons, 
+			 electrons, muons, neutrinos);
+     //cout << "Before " << dressing_photons.size() << endl;
+     // Dresses Leptons, and removes photons used in dressing
+     vector<MCParticleData> dressed_electrons = Dress(electrons, dressing_photons); 
+     vector<MCParticleData> dressed_muons = Dress(muons, dressing_photons);
+     //cout << "After " << dressing_photons.size() << endl;
+     MakeCheckHistograms(histograms, "Dress", dressing_photons, 
+			 dressed_electrons, dressed_muons, neutrinos);
 
      /*
       * Object Cuts
-      */
-     
-     vector<MCParticleData> candidate_photons = ObjectCuts::SelectPhotons(photons);   
-     vector<MCParticleData> candidate_electrons = ObjectCuts::SelectLeptons(electrons);
-     vector<MCParticleData> candidate_muons = ObjectCuts::SelectLeptons(muons);
+      */ 
+
+     // Input is sample of photons, with photons used for dressing removed.
+     vector<MCParticleData> candidate_photons = ObjectCuts::SelectPhotons(dressing_photons);
+     // Candidate Leptons are selected from "dressed" leptons collections
+     vector<MCParticleData> candidate_electrons = ObjectCuts::SelectLeptons(dressed_electrons);
+     vector<MCParticleData> candidate_muons = ObjectCuts::SelectLeptons(dressed_muons);
      vector<MCParticleData> candidate_neutrinos = ObjectCuts::SelectNeutrinos(neutrinos);
+     
 
      MakeCheckHistograms(histograms, "Cut0", candidate_photons, 
      		 candidate_electrons, candidate_muons, candidate_neutrinos);
@@ -124,37 +153,80 @@ void CommonFiducialSkim::Loop(TTree * skim_tree, HistogramBuilder & histograms)
        channel = "Muon_Channel"; 
        candidate_leptons = candidate_muons;
      }
-     histograms.FillCutFlowHistograms(channel, 1);
+     histograms.FillCutFlowHistograms(channel, 1, nlo_weight);
 
      if(!(EventCuts::PassPhotonMultiplicity(candidate_photons))) continue;     
-     histograms.FillCutFlowHistograms(channel, 2);
+     histograms.FillCutFlowHistograms(channel, 2, nlo_weight);
 
      //DeltaR Cuts
      if(!(EventCuts::PassPhotonPhotonDeltaR(candidate_photons))) continue;
-     histograms.FillCutFlowHistograms(channel, 3);
+     histograms.FillCutFlowHistograms(channel, 3, nlo_weight);
      if(!(EventCuts::PassPhotonLeptonDeltaR(candidate_photons, candidate_leptons))) continue;
-     histograms.FillCutFlowHistograms(channel, 4);
+     histograms.FillCutFlowHistograms(channel, 4, nlo_weight);
      //MT Cuts
      if(!(EventCuts::PassMt(candidate_leptons[0], candidate_neutrinos))) continue;
-     histograms.FillCutFlowHistograms(channel, 5);
+     histograms.FillCutFlowHistograms(channel, 5, nlo_weight);
  
      keep_event = true;
      
      if(keep_event) skim_tree->Fill();
      
    }
+   //cout << count << endl;
 }
 
+
+/*
+ * Dresses leptons with photons within dR cut,
+ * and creates a new four vector.
+ * removes photons if they are matches to a lepton.
+ * leptons must be from a W or tau parent (including missing W's)
+ */
+
+vector<MCParticleData> CommonFiducialDressLeptonSkim::Dress(vector<MCParticleData> & leptons, 
+							    vector<MCParticleData> & dressing_photons){
+  
+  vector<MCParticleData> dressed_leptons;
+
+  for(unsigned int lepton_index =0; lepton_index < leptons.size(); lepton_index++){ 
+    
+    MCParticleData lepton = leptons[lepton_index];
+    // Must have correct parentage
+    if (!ObjectCuts::PassParentCut(lepton, CutValues::LEPTON_CANDIDATE_PARENT_PDGIDS())) continue;
+    if (!ObjectCuts::PassPromptCut(lepton, CutValues::NONPROMPT_BIT_MASK)) continue;
+    // Add Four Vectors and Remove photon if within deltaR cut. (have to be careful with
+    // incrementing indices.)
+   
+    TLorentzVector dressed_lepton_four_vector = lepton.GetFourVector();
+    //unsigned int photon_index = 0;
+    //while(photon_index < dressing_photons.size()){
+    for(vector<MCParticleData>::iterator dressing_photon = dressing_photons.begin();
+	dressing_photon != dressing_photons.end();){  // ++ is in body
+      //MCParticleData dressing_photon = dressing_photons[photon_index];
+      if(lepton.GetFourVector().DeltaR(dressing_photon->GetFourVector()) < CutValues::DRESSING_DR){
+	dressed_lepton_four_vector += dressing_photon->GetFourVector();
+	
+	//Remove Dressing Photon from Collection
+	dressing_photon = dressing_photons.erase(dressing_photon);
+      }	else {
+	++dressing_photon;
+      }
+    }
+    MCParticleData dressed_lepton = lepton;
+    dressed_lepton.SetFourVector(dressed_lepton_four_vector);      
+    dressed_leptons.push_back(dressed_lepton);
+  }
+  return dressed_leptons;
+}
 
 /* 
  * Return a vector of all particles, with the designated
  * ID and Status
  */
 
-vector<MCParticleData> CommonFiducialSkim::AssignParticleByIDandStatus(int pdgID, int status){
+vector<MCParticleData> CommonFiducialDressLeptonSkim::AssignParticleByIDandStatus(int pdgID, int status){
   
   vector<MCParticleData> particles;
-
   for(int mc_index =0; mc_index < nMC; mc_index++){
     //Make Particle if it Passes Condition
     if(abs(mcPID->at(mc_index)) == pdgID && mcStatus->at(mc_index) == status){
@@ -166,7 +238,7 @@ vector<MCParticleData> CommonFiducialSkim::AssignParticleByIDandStatus(int pdgID
 }
 
 // Wrapper, when there is a range of pdgID values
-vector<MCParticleData> CommonFiducialSkim::AssignParticleByIDandStatus(vector <int> pdgIDs, int status){
+vector<MCParticleData> CommonFiducialDressLeptonSkim::AssignParticleByIDandStatus(vector <int> pdgIDs, int status){
   vector<MCParticleData> total_particles;
 
   for(unsigned int index=0; index < pdgIDs.size(); index++){
@@ -178,7 +250,7 @@ vector<MCParticleData> CommonFiducialSkim::AssignParticleByIDandStatus(vector <i
   return total_particles;
 }
 
-MCParticleData CommonFiducialSkim::MakeParticle(int mc_index){
+MCParticleData CommonFiducialDressLeptonSkim::MakeParticle(int mc_index){
 
   MCParticleData particle;
   TLorentzVector four_vector;
@@ -194,7 +266,7 @@ MCParticleData CommonFiducialSkim::MakeParticle(int mc_index){
   return particle;
 }
 
-void CommonFiducialSkim::MakeCheckHistograms(HistogramBuilder & histograms, string prefix, vector<MCParticleData> photons, 
+void CommonFiducialDressLeptonSkim::MakeCheckHistograms(HistogramBuilder & histograms, string prefix, vector<MCParticleData> photons, 
 					    vector<MCParticleData> electrons, vector<MCParticleData> muons, 
 					    vector<MCParticleData> neutrinos){
 

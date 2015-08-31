@@ -5,12 +5,19 @@ ROOT_LIBS = $(shell root-config --glibs)
 FIDUCIAL_INTERFACE = interface
 
 
-all:
+all: common dress
 
+#	g++ -g $(ROOT_CFLAGS) -I $(FIDUCIAL_INTERFACE) $(ROOT_LIBS)  -o test/CommonFiducialSkim.exe src/common_fiducial_skim.cc src/object_cuts.cc src/event_cuts.cc src/histogram_builder.cc
+
+common:
 	g++ -g $(ROOT_CFLAGS) -I $(FIDUCIAL_INTERFACE) $(ROOT_LIBS)  -o test/CommonFiducialSkim.exe src/common_fiducial_skim.cc src/object_cuts.cc src/event_cuts.cc src/histogram_builder.cc
 
+dress:
+	g++ -g $(ROOT_CFLAGS) -I $(FIDUCIAL_INTERFACE) $(ROOT_LIBS)  -o test/CommonFiducialDressLeptonSkim.exe src/common_fiducial_dress_lepton_skim.cc src/object_cuts.cc src/event_cuts.cc src/histogram_builder.cc
+
 clean:
-	rm src/CommonFiducialSkim.exe
+	rm test/CommonFiducialSkim.exe
+	rm test/CommonFiducialDressLeptonSkim.exe
 
 #g++ -g -Wall -fPIC -pthread -m64  $(ROOT_CFLAGS) -I $(FIDUCIAL_INTERFACE) $(ROOT_LIBS)  -o test/CommonFiducialSkim.exe src/common_fiducial_skim.cc src/object_cuts.cc src/event_cuts.cc src/histogram_builder.cc
 

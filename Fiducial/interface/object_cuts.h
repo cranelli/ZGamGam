@@ -11,8 +11,12 @@ class ObjectCuts {
  public:
 
   static vector<MCParticleData> SelectPhotons(vector<MCParticleData> & photons);
+  static vector<MCParticleData> SelectDressPhotons(vector<MCParticleData> & photons);
   static vector<MCParticleData> SelectLeptons(vector<MCParticleData> & leptons);
   static vector<MCParticleData> SelectNeutrinos(vector<MCParticleData> & neutrinos);
+
+  static bool PassParentCut(MCParticleData & particle, vector<int> parent_pdgIDs);
+  static bool PassPromptCut(MCParticleData & particle, int prompt_bit_mask);
   
   /*
   static void SelectOnPt(vector<MCParticleData> & particles, float min_pt);

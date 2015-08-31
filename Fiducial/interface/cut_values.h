@@ -11,6 +11,8 @@ class CutValues {
 
  public:
 
+  static const float DRESSING_DR = 0.1;
+
   static const int PHOTON_PDGID = 22;
   static const int ELECTRON_PDGID = 11;
   static const int MUON_PDGID = 13;
@@ -40,7 +42,7 @@ class CutValues {
     return LEPTON_CANDIDATE_PARENT_PDGIDS;
   }
 
-  static vector<int> NEUTRINO_CANDIDATE_PARENT_PDGIDS(){int nu_moms[8] = {1,2,3,4,5,15, 21, 24};
+  static vector<int> NEUTRINO_CANDIDATE_PARENT_PDGIDS(){int nu_moms[8] = {1,2,3,4,5,15,21,24};
     static const vector<int> NEUTRINO_CANDIDATE_PARENT_PDGIDS(nu_moms,
 							    nu_moms + 
 							    sizeof nu_moms / sizeof nu_moms[0]);
