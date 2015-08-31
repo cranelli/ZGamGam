@@ -25,20 +25,21 @@ class HistogramBuilder{
    * Functions for HistogramBuilderTwo                                       
    */
   
-  void FillCutFlowHistograms(string key, int cut_step, double weight=1);
-  map<string, TH1 *> GetHistograms() { return _histograms;};
-
-  void fillPtHistograms(string key, float pt,  double weight=1);
-  void fillEnergyHistograms(float energy, string key, double weight=1);     
-  void fillEtaPhiHistograms(float eta, float phi, string key, double weight=1);
-  void fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2, 
-				      float phi1, float phi2,  string key, double weight=1);
-  void fillCountHistogram(string key,double weight=1);    
-  void fillTrigHistograms(bool trigDecision,string key, double weight=1);
-  void fillWeightHistograms(float weight_val, string key, double weight=1);
-  void fillScatterPt(float pt1, float pt2, string key, double weight);
+  void FillCutFlowHistograms(string prefix, int cut_step, double weight=1);
+  void fillPtHistograms(string prefix, float pt,  double weight=1);
+  void fillEtaHistograms(string prefix, float eta, double weight =1);
   
-  float WrapCheck(float phi1, float phi2);
+  //void fillEtaPhiHistograms(float eta, float phi, string key, double weight=1);
+  //void fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2, 
+  //float phi1, float phi2,  string key, double weight=1);
+  //void fillCountHistogram(string key,double weight=1);    
+  //void fillWeightHistograms(float weight_val, string key, double weight=1);
+  //void fillScatterPt(float pt1, float pt2, string key, double weight);
+  
+  map<string, TH1 *> GetHistograms() { return _histograms;};
+  void Write();
+  
+  //float WrapCheck(float phi1, float phi2);
   //int getMyNumber(); //{return mynumber;}
 
  private:

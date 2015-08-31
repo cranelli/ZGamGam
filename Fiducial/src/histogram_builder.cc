@@ -31,10 +31,12 @@ HistogramBuilder::HistogramBuilder(){
  * CutFlow Histograms
  */
 
-void HistogramBuilder::FillCutFlowHistograms(string key, int cut_step, double weight){
+void HistogramBuilder::FillCutFlowHistograms(string prefix, int cut_step, double weight){
+  string key = prefix + "_CutFlow";
+
   if(!_histograms.count(key)){
-    _histograms[key] = new TH1F(Form("%s_CutFlow",key.c_str()),
-			       Form("%s CutFlow",key.c_str()),
+    _histograms[key] = new TH1F(Form("%s",key.c_str()),
+			       Form("%s",key.c_str()),
 			       10, 0, 10);
     _histograms[key]->GetYaxis()->SetTitle("CutFlow");
     _histograms[key]->Sumw2();
@@ -45,96 +47,39 @@ void HistogramBuilder::FillCutFlowHistograms(string key, int cut_step, double we
 /*
  *Pt Histograms
  */
-void HistogramBuilder::fillPtHistograms(string key, float pt, double weight){
+void HistogramBuilder::fillPtHistograms(string prefix, float pt, double weight){
+  string key = prefix+"_Pt";
   if(!_histograms.count(key)){
         
-    _histograms[key] = new TH1F(Form("%s_Pt",key.c_str()),
-					  Form("%s Pt",key.c_str()),
-					  100,0,200);
+    _histograms[key] = new TH1F(Form("%s",key.c_str()),
+				Form("%s",key.c_str()),
+				100,0,200);
     SetAxises(_histograms[key],"Pt (GeV)", "Counts");
     _histograms[key]->Sumw2();
   } 
   _histograms[key]->Fill(pt, weight);
 }
 
+void HistogramBuilder::fillEtaHistograms(string prefix, float eta, double weight){
+  string key = prefix + "_Eta";
 
-/*
- *Counting Histograms
- *Fills the 1 bin.
- */
-void HistogramBuilder::fillCountHistogram(string key, double weight){
-  if(!_h1Counter.count(key)){                                                   
-    _h1Counter[key] = new TH1F(Form("%s_Count",key.c_str()),    
-                                               Form("%s Count",key.c_str()),    
-                                               2, 0, 2);
-    _h1Counter[key]->GetYaxis()->SetTitle("Counts");
-    _h1Counter[key]->Sumw2();
-  }                                                                             
-  _h1Counter[key]->Fill(1, weight);
+  if(!_histograms.count(key)){
+    _histograms[key] = new TH1F(Form("%s",key.c_str()),
+				Form("%s",key.c_str()),
+				100, -3.0, 3.0);  
+    SetAxises(_histograms[key], "#eta", "Counts");
+    _histograms[key]->Sumw2();
+    
+  }
+  _histograms[key]->Fill(eta, weight);
 }
-                                                                               
-
-/*      
- *Trigger Histograms
- */
-void HistogramBuilder::fillTrigHistograms(bool trigDecision,string key, double weight){ 
-  if(!_h1Trig.count(key)){                                                   
-    _h1Trig[key] = new TH1F(Form("%s_Trig",key.c_str()),     
-                                            Form("%s Trigger",key.c_str()),  
-                                            2, 0, 2);
-    SetAxises(_h1Trig[key],"Trigger Decision", "Counts");
-    _h1Trig[key]->Sumw2();
-  }                                                      
-                       
-  _h1Trig[key]->Fill(trigDecision, weight);                                        
-     
-}
-
-/*      
- *Weight Histograms
- */
-void HistogramBuilder::fillWeightHistograms(float weight_val,string key, double weight){ 
-  if(!_h1Weight.count(key)){                                                   
-    _h1Weight[key] = new TH1F(Form("%s_Weight",key.c_str()),     
-					      Form("%s Weight",key.c_str()),  
-					      15000, 0, 150);
-    SetAxises(_h1Weight[key],"Weight", "Counts");
-  }                                                      
-                       
-  _h1Weight[key]->Fill(weight_val, weight);                                        
-     
-}
-      
-
-/*                                          
- *Energy Histograms
- */
-
-void HistogramBuilder::fillEnergyHistograms(float energy, string key, double weight){  
-  if(!_h1Energy.count(key)){                                             
-    _h1Energy[key] = new TH1F(Form("%s_Energy",key.c_str()),
-                                            Form("%s Energy",key.c_str()), 
-                                            2100, -5.0, 100.0);
-    SetAxises(_h1Energy[key],"Energy (GeV)", "Counts");
-    _h1Energy[key]->Sumw2();
-  }                                                                          
-  _h1Energy[key]->Fill(energy, weight);                                            
-}  
 
 /*                                                                             
  *Eta Phi Histograms                                                         
  */
-
+/*
 void HistogramBuilder::fillEtaPhiHistograms(float eta, float phi, string key, double weight){
-  if(!_h1Eta.count(key)){
-    _h1Eta[key] = new TH1F(Form("%s_Eta",key.c_str()),
-                                           Form("%s Eta",key.c_str()),
-                                           500, -1.5, 1.5);  //HO has 72 iphis and 30 ietas
-    SetAxises(_h1Eta[key], "#eta", "Counts");
-    _h1Eta[key]->Sumw2();
-    
-  }
-  _h1Eta[key]->Fill(eta, weight);
+
 
   if(!_h1Phi.count(key)){
     _h1Phi[key] = new TH1F(Form("%s_Phi",key.c_str()),
@@ -155,11 +100,51 @@ void HistogramBuilder::fillEtaPhiHistograms(float eta, float phi, string key, do
   _h2EtaPhiMap[key]->Fill(eta, phi, weight);
 
 };
+*/
+
+/*
+ *Counting Histograms
+ *Fills the 1 bin.
+ */
+/*
+void HistogramBuilder::fillCountHistogram(string key, double weight){
+  if(!_h1Counter.count(key)){                                                   
+    _h1Counter[key] = new TH1F(Form("%s_Count",key.c_str()),    
+                                               Form("%s Count",key.c_str()),    
+                                               2, 0, 2);
+    _h1Counter[key]->GetYaxis()->SetTitle("Counts");
+    _h1Counter[key]->Sumw2();
+  }                                                                             
+  _h1Counter[key]->Fill(1, weight);
+}
+*/                                                                             
+
+/*      
+ *Weight Histograms
+ */
+/*
+void HistogramBuilder::fillWeightHistograms(float weight_val,string key, double weight){ 
+  if(!_h1Weight.count(key)){                                                   
+    _h1Weight[key] = new TH1F(Form("%s_Weight",key.c_str()),     
+					      Form("%s Weight",key.c_str()),  
+					      15000, 0, 150);
+    SetAxises(_h1Weight[key],"Weight", "Counts");
+  }                                                      
+                       
+  _h1Weight[key]->Fill(weight_val, weight);                                        
+     
+}
+*/
+     
+
+
+
+
 
 /*
  *Delta Eta Delta Phi Histograms
  */
-
+/*
 void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2, 
 						      float phi1, float phi2, 
 						      string key, double weight){
@@ -201,24 +186,12 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2,
   }
   _h2DeltaEtaDeltaPhi[key]->Fill(deltaEta, deltaPhi, weight);
 } 
-
-
-/*
-if(!_h1InvPt.count(key)){
-        
-    _h1InvPt[key] = new TH1F(Form("%s_InvPt",key.c_str()),
-					  Form("%s Inv Pt",key.c_str()),
-					  800,-1,1);
-    SetAxises(_h1InvPt[key], "#frac{1}{P_t}", "Counts");
-    _h1InvPt[key]->Sumw2();
-  } 
- _h1InvPt[key]->Fill(1.0/pt, weight);
 */
 
 /*
  * Scatter Pt Plot
  */
-
+/*
 void HistogramBuilder::fillScatterPt(float pt1, float pt2, string key, double weight){
   if(!_h2ScatterPt.count(key)){
     _h2ScatterPt[key] = new TH2F(Form("%s_ScatterPt",key.c_str()),
@@ -230,6 +203,7 @@ void HistogramBuilder::fillScatterPt(float pt1, float pt2, string key, double we
   _h2ScatterPt[key]->Fill(pt1, pt2, weight);
 }
 
+*/
 
 /*
  *
@@ -292,13 +266,25 @@ void HistogramBuilder::SetAxises(TH2F * h2, string xTitle, string yTitle){
 }
 */
 
+
+/*
+ * Iterates through all the stored histograms and writes them
+ * to a root file.
+ */
+
+void HistogramBuilder::Write(){
+  for( map<string,TH1 *>::iterator it = _histograms.begin(); it!= _histograms.end(); ++it){
+    it->second->Write();
+  }
+}
+
+
 /*
  * Handles wrapping between two angles.
  * So they are never more than 2 PI radians separated.
  * Returns values between -PI and PI.
  */
-
-
+/*
 
 float HistogramBuilder::WrapCheck(float phi1, float phi2){
   static const float PI = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348;
@@ -308,18 +294,6 @@ float HistogramBuilder::WrapCheck(float phi1, float phi2){
   if(delta_phi < -1*PI) delta_phi += 2*PI;
     
   return delta_phi;
-  /*
-  float delta_case;
-   delta_case = delta_phi;
-  if(delta_phi < -PI){
-    delta_case = (2*PI + delta_phi);
-  }
-  if(delta_phi > PI){
-    delta_case = (delta_phi - 2*PI);
-  }
-    
-  //float delta_mod = fmod(pos_angle + PI, 2*PI) - PI;
- 
-  // Use the float modulus operator
-  */
 };
+
+*/
