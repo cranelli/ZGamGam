@@ -72,8 +72,8 @@ void CommonFiducialDressLeptonSkim::Loop(TTree * skim_tree, HistogramBuilder & h
 {
   
    if (fChain == 0) return;
-   //Long64_t nentries = fChain->GetEntriesFast();
-   Long64_t nentries = 10000;
+   Long64_t nentries = fChain->GetEntriesFast();
+   //Long64_t nentries = 10000;
 
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
      fChain->GetEntry(jentry);

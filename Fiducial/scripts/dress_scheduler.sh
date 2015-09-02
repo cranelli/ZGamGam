@@ -8,7 +8,9 @@
 #
 
 DRESS_NTUPLES_DIR=/data/users/cranelli/WGamGam/NLO_ggNtuples/CustomForDress/TruthSkim/
-DRESS_OUTDIR=/data/users/cranelli/WGamGam/CommonFiducial/Dress/CommonFiducial_NLO_wMT_Dress500MeV_Skim
+DRESS_OUTDIR=/data/users/cranelli/WGamGam/Acceptances/Dressed/CommonFiducial_NLO_wMT_Dress500MeV_Skim/
+
+#CommonFiducial/Dress/CommonFiducial_NLO_wMT_Dress500MeV_Skim
 
 # Run makefile
 make dress
