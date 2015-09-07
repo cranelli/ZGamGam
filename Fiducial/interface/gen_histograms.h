@@ -89,9 +89,13 @@ class GenHistograms {
    vector<double>  *xfx_second_CT10nlo;
    vector<double>  *xfx_first_MSTW2008nlo68cl;
    vector<double>  *xfx_second_MSTW2008nlo68cl;
-   //My leaf types
-   map<string, Float_t>  PU_Reweights;
 
+   //My leaf types
+
+   map<string, Float_t>  PU_Reweights;
+   // Each PDF contains two parton distribution functions
+   //pair<vector<double> *, vector<double> * > orig_pdf_pair;
+   map<string, pair<vector<double> *, vector<double> * > > PDF_Reweights;
 
    // List of branches
    TBranch        *b_LHEWeight_weights;   //!
@@ -152,9 +156,16 @@ class GenHistograms {
    vector<MCParticleData> Dress(vector<MCParticleData> & leptons,
                                 vector<MCParticleData> & dressing_photons);
 
+   void MakeHistograms(string prefix, vector<MCParticleData> & photons, float weight);
+
    void MakeBasicHistograms(string decay_type, vector<MCParticleData> & candidate_photons);
    void MakeUnweightedHistograms(string decay_type, vector<MCParticleData> & candidate_photons);
-   void MakeHistograms(string prefix, vector<MCParticleData> & photons, float weight);
+   void MakePileUpReweightHistograms(string decay_type, vector<MCParticleData> & photons);
+   void MakeNLOReweightHistograms(string decay_type, vector<MCParticleData> & photons);
+   void MakeCentralPDFReweightHistograms(string decay_type, vector<MCParticleData> & photons);
+   void MakeEigenvectorPDFReweightHistograms(string decay_type, vector<MCParticleData> & photons);
+   double CalcPDFReweight(pair<vector<double> *, vector<double> * > orig_pdf_pair, 
+			  pair<vector<double> *, vector<double> * > new_pdf_pair, int new_eigenvector_index);
 
    MCParticleData SelectLead(vector<MCParticleData> & photons);
 
@@ -226,12 +237,22 @@ void GenHistograms::Init(TTree *tree)
    xfx_second_CT10nlo = 0;
    xfx_first_MSTW2008nlo68cl = 0;
    xfx_second_MSTW2008nlo68cl = 0;
-   
+
+   //PU Reweights
    vector<string> pu_reweight_names = CutValues::PU_REWEIGHT_NAMES();
    for(unsigned int pu_name_index = 0; pu_name_index < pu_reweight_names.size(); pu_name_index++){
      PU_Reweights[pu_reweight_names[pu_name_index]] = 0;
    }
-   //PUWeights =0;
+
+   // PDF Reweights
+   vector<string> pdf_set_names = CutValues::PDF_REWEIGHT_NAMES();
+   for(vector<string>::iterator it = pdf_set_names.begin(); it != pdf_set_names.end(); it++){
+     //for(unsigned int pdf_name_index = 0; pdf_name_index < pdf_set_names.size(); pdf_name_index++){
+     PDF_Reweights[*it].first = 0;
+     PDF_Reweights[*it].second = 0;
+   }
+
+
 
    // Set branch addresses and branch pointers
    if (!tree) return;
@@ -284,13 +305,19 @@ void GenHistograms::Init(TTree *tree)
    fChain->SetBranchAddress("xfx_second_MSTW2008nlo68cl", &xfx_second_MSTW2008nlo68cl, &b_xfx_second_MSTW2008nlo68cl);
 
 
-   
-   //puweight_names.push_back("PUWeightUP5");
-   //for(vector<string>:iterator puweight_name = puweight_names->begin(); puweight_name != puweight_names->end(); puweight_name++){
+   //PU Reweights
    for(unsigned int pu_name_index = 0; pu_name_index < pu_reweight_names.size(); pu_name_index++){
      string pu_reweight_name = pu_reweight_names[pu_name_index];
      fChain->SetBranchAddress(pu_reweight_name.c_str(), &PU_Reweights[pu_reweight_name]);
      //fChain->SetBranchAddress(puweight_names[pu_index].c_str(), PUWeights[pu_index], b_PUWeights[pu_index]);
+   }
+   //PDF Reweights
+   for(unsigned int pdf_name_index = 0; pdf_name_index < pdf_set_names.size(); pdf_name_index++){
+     string pdf_set_name = pdf_set_names[pdf_name_index];
+     string pdf_first_branch_name = "xfx_first_" + pdf_set_name;
+     fChain->SetBranchAddress(pdf_first_branch_name.c_str(), &(PDF_Reweights[pdf_set_name].first));
+     string pdf_second_branch_name = "xfx_second_" + pdf_set_name;
+     fChain->SetBranchAddress(pdf_second_branch_name.c_str(), &(PDF_Reweights[pdf_set_name].second));
    }
 
    //Notify();

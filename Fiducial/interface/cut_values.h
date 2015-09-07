@@ -14,6 +14,9 @@ class CutValues {
 
  public:
 
+  /*
+   * Dressing
+   */
   static const float DRESSING_DR = 0.1;
 
   /*
@@ -71,21 +74,58 @@ class CutValues {
     return NEUTRINO_PDGIDS;
   }
 
-  /*
-   * PU Reweight Names
-   */
-  static vector<string> PU_REWEIGHT_NAMES(){
-    string pu_reweight_names[1] = {"PUWeightUP5"};
-    static const vector<string> PU_REWEIGHT_NAMES(pu_reweight_names, 
-						  pu_reweight_names + sizeof pu_reweight_names / sizeof pu_reweight_names[0]);
-    return PU_REWEIGHT_NAMES;
-  }
+
 
   /*
    * GEN and RECO HISTOGRAMS
    */
 
+  // Unweighted
   const static bool DO_UNWEIGHTED = true;
+
+  // PU Reweight Names
+  const static bool DO_PILEUP_REWEIGHT = true;
+
+  static vector<string> PU_REWEIGHT_NAMES(){
+    //Declared Here
+    string pu_reweight_names[] = {"PUWeightUP5", "PUWeightDN5"};
+    static const vector<string> PU_REWEIGHT_NAMES(pu_reweight_names, 
+						  pu_reweight_names + sizeof pu_reweight_names / sizeof pu_reweight_names[0]);
+    return PU_REWEIGHT_NAMES;
+  }
+
+  //NLO Reweight Indices And Names (Factorization and Renormalization LHEWeight_weights[index])
+
+  const static bool DO_NLO_REWEIGHT = true;
+  
+  static vector< pair<string, int> > NLO_REWEIGHT_NAMES_INDICES(){
+    //Declared Here
+    pair<string, int> nlo_reweight_names_indices[] = {make_pair("Factorization_Double", 1), make_pair("Factorization_Half", 2),
+						      make_pair("Renormalization_Double", 3), make_pair("Renormalization_Half", 6)};
+   
+    static const vector< pair <string, int> > NLO_REWEIGHT_NAMES_INDICES(nlo_reweight_names_indices, 
+								      nlo_reweight_names_indices + sizeof nlo_reweight_names_indices / sizeof nlo_reweight_names_indices[0]);
+    return NLO_REWEIGHT_NAMES_INDICES;
+  }
+
+
+  //PDF Reweight (Central and Eigenvector)
+  
+  const static bool DO_CENTRAL_PDF_REWEIGHT = true;
+  const static bool DO_EIGENVECTOR_PDF_REWEIGHT = true;
+ 
+  static vector<string> PDF_REWEIGHT_NAMES(){
+    //Declared Here
+    string pdf_reweight_names[] = {"NNPDF30_nlo_nf_5_pdfas", "CT10nlo", "MSTW2008nlo68cl"};
+    static const vector<string> PDF_REWEIGHT_NAMES(pdf_reweight_names, 
+						  pdf_reweight_names + sizeof pdf_reweight_names / sizeof pdf_reweight_names[0]);
+    return PDF_REWEIGHT_NAMES;
+  }
+
+  const static int ORIGINAL_PDF_NAME_INDEX = 0 ; // ie  NNPDF30_nlo_nf_5_pdfas
+  
+  const static int EIGENVECTOR_PDF_NAME_INDEX = 0; // ie  NNPDF30_nlo_nf_5_pdfas
+
 
   /*
    * Bin Pt Edges
@@ -93,20 +133,7 @@ class CutValues {
 
   //static const int NUM_PT_BINS = 4;
   //static const float PT_BIN_LOW_EDGE[NUM_PT_BINS] = {15, 25, 40, 70}; 
-  
-  /*
-  static float*  PT_BIN_LOW_EDGE(){
-    float low_edges[NUM_PT_BINS] 
-    //static const vector<float> PT_BIN_LOW_EDGE(low_edges,
-    //				     low_edges + 
-    //				     sizeof low_edges / sizeof low_edges[0]);
-
-    return low_edges;
-    //float* PT_BIN_LOW_EDGE = &
-    
-    return PT_BIN_LOW_EDGE;
-  }
-  */
+ 
 
 };
 

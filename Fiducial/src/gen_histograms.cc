@@ -1,6 +1,6 @@
 /*
  * Example Execution
- * ./GenHistograms.exe  "/data/users/cranelli/WGamGam/Acceptances/Dressed/CommonFiducial_NLO_wMT_Dress500MeV_Skim_PUWeights_PDFReweights/job_NLO_WAA_FSR/tree.root" "Histograms/FSR_Dressed_GEN_Histograms.root"
+ * ./GenHistograms.exe  "/data/users/cranelli/WGamGam/Acceptances/Dressed/CommonFiducial_NLO_wMT_Dress500MeV_Skim_PUWeights_PDFReweights/job_NLO_WAA_FSR/tree.root" "../Histograms/FSR_Dressed_GEN_Histograms.root"
  */
 #define gen_histograms_cxx
 #include "gen_histograms.h"
@@ -64,16 +64,7 @@ void GenHistograms::Loop()
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
      fChain->GetEntry(jentry);
      if(jentry%1000 == 0) cout << jentry << endl;
-     //Long64_t ientry = LoadTree(jentry);
-
-     /*
-      * PileUpReweights
-      */
-     
-     for(map<string, Float_t>::iterator it = PU_Reweights.begin(); it != PU_Reweights.end(); it++){
-       //cout << it->second << endl;
-     }
-     
+     //Long64_t ientry = LoadTree(jentry);     
 
      /*                                                                         
       * NLO Weight                                                              
@@ -126,19 +117,23 @@ void GenHistograms::Loop()
      if(CutValues::DO_UNWEIGHTED){
        MakeUnweightedHistograms(decay_type, candidate_photons);
      }
+     
+     if(CutValues::DO_PILEUP_REWEIGHT){
+       MakePileUpReweightHistograms(decay_type, candidate_photons);
+     }
+
+     if(CutValues::DO_NLO_REWEIGHT){
+       MakeNLOReweightHistograms(decay_type, candidate_photons);
+     }
+     if(CutValues::DO_CENTRAL_PDF_REWEIGHT){
+       MakeCentralPDFReweightHistograms(decay_type, candidate_photons);
+     }
+     if(CutValues::DO_EIGENVECTOR_PDF_REWEIGHT){
+       MakeEigenvectorPDFReweightHistograms(decay_type, candidate_photons);
+     }
    } 
 }
-// Get Pileup Reweights
-/*
-vector<WeightNamePair> GenHistograms::GetPileUpReweights(){
-  vector<WeightNamePair> pileup_reweights;
-  WeightNamePair pileup_pair;
-  pileup_pair.name = "PUWeight5";
-  pileup_pair.weight = & PUWeightUP5;
-  pileup_reweights.push_back(pileup_pair);
-  return pileup_reweights;
-}
-*/
+
 
 // Basic Histograms (used for the Acceptances no reweighting for systematics).
 void GenHistograms::MakeBasicHistograms(string decay_type, vector<MCParticleData> & candidate_photons){
@@ -154,6 +149,110 @@ void GenHistograms::MakeUnweightedHistograms(string decay_type, vector<MCParticl
   double weight =1;
   string prefix = decay_type + "_unweighted";
   MakeHistograms(prefix, photons, weight);
+}
+
+
+/*
+ * PileUpReweights default PUWeight is replaced with one of the reweighting variations.
+ */
+void GenHistograms::MakePileUpReweightHistograms(string decay_type, vector<MCParticleData> & photons){
+  double nlo_weight = LHEWeight_weights->at(0);
+  
+  for(map<string, Float_t>::iterator it = PU_Reweights.begin(); it != PU_Reweights.end(); it++){
+    
+    string pu_name = it->first;
+    double pu_reweight = it->second;
+    
+    double weight = nlo_weight * pu_reweight;
+    string prefix = decay_type + "_" +pu_name;
+    MakeHistograms(prefix, photons, weight);
+  }
+}
+
+/*
+ * Central PDF Reweight.  Multiply the reweighting factor, for the
+ * ratio of the orignal pdf set's weight compared to the new pdf set's weight.
+ */
+
+void GenHistograms::MakeCentralPDFReweightHistograms(string decay_type, vector<MCParticleData> & photons){
+  double nlo_weight = LHEWeight_weights->at(0);
+
+  pair<vector<double> *, vector <double> * > orig_pdf_pair = PDF_Reweights[CutValues::PDF_REWEIGHT_NAMES().at(CutValues::ORIGINAL_PDF_NAME_INDEX)];
+
+  for(map<string, pair<vector <double> *, vector<double> * > >::iterator it = PDF_Reweights.begin(); 
+      it != PDF_Reweights.end(); it++){
+
+    string pdf_set_name = it->first;
+    pair <vector<double> * , vector<double> * > new_pdf_pair= it->second;
+
+    int new_eigenvector_index = 0; //Corresponds to Central Value
+    double pdf_reweight = CalcPDFReweight(orig_pdf_pair, new_pdf_pair, new_eigenvector_index);
+    double weight = nlo_weight * PUWeight * pdf_reweight;
+    string prefix = decay_type + "_" + pdf_set_name;
+    MakeHistograms(prefix, photons, weight);
+  }
+}
+
+/*
+ * Eigenvector PDF Reweights. Reweights for the orignal PDF weights, to the weights corresponding to
+ * the PDF set's eigenvector values. 
+ */
+
+void GenHistograms::MakeEigenvectorPDFReweightHistograms(string decay_type, vector<MCParticleData> & photons){
+  double nlo_weight = LHEWeight_weights->at(0);
+
+  pair<vector<double> *, vector <double> * > orig_pdf_pair = PDF_Reweights[CutValues::PDF_REWEIGHT_NAMES().at(CutValues::ORIGINAL_PDF_NAME_INDEX)];
+
+  string eigenvector_pdf_set_name = CutValues::PDF_REWEIGHT_NAMES().at(CutValues::EIGENVECTOR_PDF_NAME_INDEX); 
+  pair<vector<double> *, vector <double> * > eigenvector_pdf_pair = PDF_Reweights[eigenvector_pdf_set_name];
+
+  
+  for(unsigned eigenvector_index = 0; eigenvector_index < eigenvector_pdf_pair.first->size(); eigenvector_index++){
+  
+    
+    double pdf_reweight = CalcPDFReweight(orig_pdf_pair, eigenvector_pdf_pair, eigenvector_index);
+    double weight = nlo_weight * PUWeight * pdf_reweight;
+    string prefix = decay_type + "_" + eigenvector_pdf_set_name + "_" + to_string(eigenvector_index);
+    MakeHistograms(prefix, photons, weight);
+    
+  }
+}
+
+
+/*
+ * Calculates the factor to reweight from the original pdf set to the new pdf set.
+ * The eigenvector index of the original set is always 0, the central value.
+ */
+double GenHistograms::CalcPDFReweight(pair<vector<double> * , vector<double> * > orig_pdf_pair, pair<vector<double> * , vector<double> * > new_pdf_pair, int new_eigenvector_index){
+  int orig_eigenvector_index = 0; // Original PDF is always at Central Value
+
+  double  orig_xfx_first = orig_pdf_pair.first->at(orig_eigenvector_index);
+  double  orig_xfx_second = orig_pdf_pair.second->at(orig_eigenvector_index);
+
+  double  new_xfx_first = new_pdf_pair.first->at(new_eigenvector_index);
+  double  new_xfx_second = new_pdf_pair.second->at(new_eigenvector_index);
+
+  double reweight = (new_xfx_first * new_xfx_second) / (orig_xfx_first * orig_xfx_second);
+
+  return reweight;
+}
+    
+
+/*
+ * NLO Reweight Histograms (Factorization and Renormalization)
+ */
+
+void GenHistograms::MakeNLOReweightHistograms(string decay_type, vector<MCParticleData> & photons){ 
+  vector< pair <string, int> > nlo_reweight_names_indices = CutValues::NLO_REWEIGHT_NAMES_INDICES();
+  for( vector< pair <string, int> >::iterator it = nlo_reweight_names_indices.begin(); it != nlo_reweight_names_indices.end(); it++){
+    string name = it->first;
+    int index = it->second;
+
+    double nlo_reweight = LHEWeight_weights->at(index);
+    double weight = nlo_reweight * PUWeight; 
+    string prefix = decay_type + "_" + name;
+    MakeHistograms(prefix, photons, weight);
+  }
 }
 
 // Make Histograms
