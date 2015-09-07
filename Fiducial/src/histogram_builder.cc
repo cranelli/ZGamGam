@@ -1,5 +1,4 @@
 #include "histogram_builder.h"
-
 /*
  * The HistogramBuilder Class contains  
  * functions to build generic histograms of                           
@@ -14,6 +13,8 @@
 #include "TH2F.h"
 #include "math.h"
 
+//#include "cut_values.h"
+
 #include <string>
 #include <iostream>
 //#include "HoMuonTrigger/hoTriggerAnalyzer/interface/CommonFunctions.h"
@@ -27,6 +28,8 @@ HistogramBuilder::HistogramBuilder(){
 };
 */
 
+
+
 /*
  * CutFlow Histograms
  */
@@ -34,44 +37,59 @@ HistogramBuilder::HistogramBuilder(){
 void HistogramBuilder::FillCutFlowHistograms(string prefix, int cut_step, double weight){
   string key = prefix + "_CutFlow";
 
-  if(!_histograms.count(key)){
-    _histograms[key] = new TH1F(Form("%s",key.c_str()),
+  if(!histograms_.count(key)){
+    histograms_[key] = new TH1F(Form("%s",key.c_str()),
 			       Form("%s",key.c_str()),
 			       10, 0, 10);
-    _histograms[key]->GetYaxis()->SetTitle("CutFlow");
-    _histograms[key]->Sumw2();
+    histograms_[key]->GetYaxis()->SetTitle("CutFlow");
+    histograms_[key]->Sumw2();
   }
-  _histograms[key]->Fill(cut_step, weight);
+  histograms_[key]->Fill(cut_step, weight);
 }
 
 /*
  *Pt Histograms
  */
-void HistogramBuilder::fillPtHistograms(string prefix, float pt, double weight){
+void HistogramBuilder::FillPtHistograms(string prefix, float pt, double weight){
   string key = prefix+"_Pt";
-  if(!_histograms.count(key)){
+  if(!histograms_.count(key)){
         
-    _histograms[key] = new TH1F(Form("%s",key.c_str()),
+    histograms_[key] = new TH1F(Form("%s",key.c_str()),
 				Form("%s",key.c_str()),
 				100,0,200);
-    SetAxises(_histograms[key],"Pt (GeV)", "Counts");
-    _histograms[key]->Sumw2();
+    SetAxises(histograms_[key],"Pt (GeV)", "Counts");
+    histograms_[key]->Sumw2();
   } 
-  _histograms[key]->Fill(pt, weight);
+  histograms_[key]->Fill(pt, weight);
 }
 
-void HistogramBuilder::fillEtaHistograms(string prefix, float eta, double weight){
+void HistogramBuilder::FillPtCategoryHistograms(string prefix, 
+						float pt, double weight){
+  string key = prefix+"_Category_Pt";
+  if(!histograms_.count(key)){
+        
+    histograms_[key] = new TH1F(Form("%s",key.c_str()),
+				Form("%s",key.c_str()),
+				num_photon_pt_bins, 
+				photon_pt_bin_low_edges);
+    SetAxises(histograms_[key],"Pt (GeV)", "Counts");
+    histograms_[key]->Sumw2();
+  } 
+  histograms_[key]->Fill(pt, weight);
+}
+
+void HistogramBuilder::FillEtaHistograms(string prefix, float eta, double weight){
   string key = prefix + "_Eta";
 
-  if(!_histograms.count(key)){
-    _histograms[key] = new TH1F(Form("%s",key.c_str()),
+  if(!histograms_.count(key)){
+    histograms_[key] = new TH1F(Form("%s",key.c_str()),
 				Form("%s",key.c_str()),
 				100, -3.0, 3.0);  
-    SetAxises(_histograms[key], "#eta", "Counts");
-    _histograms[key]->Sumw2();
+    SetAxises(histograms_[key], "#eta", "Counts");
+    histograms_[key]->Sumw2();
     
   }
-  _histograms[key]->Fill(eta, weight);
+  histograms_[key]->Fill(eta, weight);
 }
 
 /*                                                                             
@@ -106,18 +124,19 @@ void HistogramBuilder::fillEtaPhiHistograms(float eta, float phi, string key, do
  *Counting Histograms
  *Fills the 1 bin.
  */
-/*
-void HistogramBuilder::fillCountHistogram(string key, double weight){
-  if(!_h1Counter.count(key)){                                                   
-    _h1Counter[key] = new TH1F(Form("%s_Count",key.c_str()),    
+
+void HistogramBuilder::FillCountHistograms(string prefix, double weight){
+  string key = prefix + "_Count";
+  if(!histograms_.count(key)){                                                   
+    histograms_[key] = new TH1F(Form("%s_Count",key.c_str()),    
                                                Form("%s Count",key.c_str()),    
                                                2, 0, 2);
-    _h1Counter[key]->GetYaxis()->SetTitle("Counts");
-    _h1Counter[key]->Sumw2();
+    histograms_[key]->GetYaxis()->SetTitle("Counts");
+    histograms_[key]->Sumw2();
   }                                                                             
-  _h1Counter[key]->Fill(1, weight);
+  histograms_[key]->Fill(1, weight);
 }
-*/                                                                             
+                                                                             
 
 /*      
  *Weight Histograms
@@ -273,7 +292,7 @@ void HistogramBuilder::SetAxises(TH2F * h2, string xTitle, string yTitle){
  */
 
 void HistogramBuilder::Write(){
-  for( map<string,TH1 *>::iterator it = _histograms.begin(); it!= _histograms.end(); ++it){
+  for( map<string,TH1 *>::iterator it = histograms_.begin(); it!= histograms_.end(); ++it){
     it->second->Write();
   }
 }

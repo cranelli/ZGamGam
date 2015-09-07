@@ -1,3 +1,6 @@
+#ifndef cut_values_h
+#define cut_values_h
+
 #include <vector>
 #include <string>
 /*
@@ -13,17 +16,28 @@ class CutValues {
 
   static const float DRESSING_DR = 0.1;
 
+  /*
+   * PDGIDs and Stauts
+   */
   static const int PHOTON_PDGID = 22;
   static const int ELECTRON_PDGID = 11;
   static const int MUON_PDGID = 13;
   static const int TAU_PDGID = 15;
   static const int FINAL_STATE_STATUS = 1; 
 
+  /*
+   * Object Cuts
+   */
+
   static const int NONPROMPT_BIT_MASK = 4; 
   static const float PHOTON_CANDIDATE_MIN_PT = 15;
   static const float PHOTON_CANDIDATE_MAX_ETA = 2.5;
   static const float LEPTON_CANDIDATE_MIN_PT = 25;
   static const float LEPTON_CANDIDATE_MAX_ETA = 2.5;
+
+  /*
+   * Event Cuts
+   */
   
   static const int REQ_NUM_CANDIDATE_LEPTONS=1;
   static const int REQ_NUM_CANDIDATE_PHOTONS=2;
@@ -56,8 +70,44 @@ class CutValues {
 					     sizeof nu_pdgIDs / sizeof nu_pdgIDs[0]);
     return NEUTRINO_PDGIDS;
   }
-      
-  
 
+  /*
+   * PU Reweight Names
+   */
+  static vector<string> PU_REWEIGHT_NAMES(){
+    string pu_reweight_names[1] = {"PUWeightUP5"};
+    static const vector<string> PU_REWEIGHT_NAMES(pu_reweight_names, 
+						  pu_reweight_names + sizeof pu_reweight_names / sizeof pu_reweight_names[0]);
+    return PU_REWEIGHT_NAMES;
+  }
+
+  /*
+   * GEN and RECO HISTOGRAMS
+   */
+
+  const static bool DO_UNWEIGHTED = true;
+
+  /*
+   * Bin Pt Edges
+   */
+
+  //static const int NUM_PT_BINS = 4;
+  //static const float PT_BIN_LOW_EDGE[NUM_PT_BINS] = {15, 25, 40, 70}; 
+  
+  /*
+  static float*  PT_BIN_LOW_EDGE(){
+    float low_edges[NUM_PT_BINS] 
+    //static const vector<float> PT_BIN_LOW_EDGE(low_edges,
+    //				     low_edges + 
+    //				     sizeof low_edges / sizeof low_edges[0]);
+
+    return low_edges;
+    //float* PT_BIN_LOW_EDGE = &
+    
+    return PT_BIN_LOW_EDGE;
+  }
+  */
 
 };
+
+#endif

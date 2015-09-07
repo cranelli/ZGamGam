@@ -5,7 +5,7 @@ ROOT_LIBS = $(shell root-config --glibs)
 FIDUCIAL_INTERFACE = interface
 
 
-all: common dress
+all: common dress gen_dress
 
 #	g++ -g $(ROOT_CFLAGS) -I $(FIDUCIAL_INTERFACE) $(ROOT_LIBS)  -o test/CommonFiducialSkim.exe src/common_fiducial_skim.cc src/object_cuts.cc src/event_cuts.cc src/histogram_builder.cc
 
@@ -14,6 +14,12 @@ common:
 
 dress:
 	g++ -g $(ROOT_CFLAGS) -I $(FIDUCIAL_INTERFACE) $(ROOT_LIBS)  -o test/CommonFiducialDressLeptonSkim.exe src/common_fiducial_dress_lepton_skim.cc src/object_cuts.cc src/event_cuts.cc src/histogram_builder.cc
+
+gen:
+	g++ -g $(ROOT_CFLAGS) -I $(FIDUCIAL_INTERFACE) $(ROOT_LIBS)  -o test/GenHistograms.exe src/gen_histograms.cc src/object_cuts.cc src/event_cuts.cc src/histogram_builder.cc
+
+gen_dress:
+	g++ -g $(ROOT_CFLAGS) -I $(FIDUCIAL_INTERFACE) $(ROOT_LIBS)  -o test/MakeGenDressHistograms.exe src/make_gen_dress_histograms.cc src/object_cuts.cc src/event_cuts.cc src/histogram_builder.cc
 
 clean:
 	rm test/CommonFiducialSkim.exe
