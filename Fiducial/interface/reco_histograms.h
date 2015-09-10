@@ -12,23 +12,32 @@
 #include <TChain.h>
 #include <TFile.h>
 
-
 #include "mc_particle_data.h"
 #include "histogram_builder.h"
 #include "cut_values.h"
 
 // Header file for the classes stored in the TTree if any.
 #include <vector>
-
 #include <map>
-
+#include <string>
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
 class RecoHistograms {
-public :
+ private :
+  string SelectChannel();
+  string SelectPhotonsLocation();
+  
+ public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
+
+
+   //My Stuff
+   HistogramBuilder histogram_builder_;
+   void MakeHistograms(string prefix, double weight);   
+   void MakeBasicHistograms(string channel_type);   
+   void MakeUnweightedHistograms(string channel_type);
 
    // Declaration of leaf types
    vector<float>   *LHEWeight_weights;
@@ -740,10 +749,7 @@ public :
    virtual void     Init(TTree *tree);
    virtual void     Loop();
 
-   //My Stuff
-   HistogramBuilder histogram_builder_;
-   void MakeHistograms(string prefix, double weight);   
-   void MakeBasicHistograms(string channel_type);   
+
 };
 
 #endif

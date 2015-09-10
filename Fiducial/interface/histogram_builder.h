@@ -48,22 +48,8 @@ class HistogramBuilder{
   float photon_pt_bin_low_edges[4] = {15, 25, 40, 70};
 
   map<string, TH1*> histograms_;
-
-  //map<string, TH1F*> _h1CutFlow;
-  //map<string,TH1F*> _h1Pt;
-  //map<string,TH1F*> _h1InvPt;
-  //map<string,TH2F*> _h2ScatterPt;
-  //map<string,TH1F*> _h1Energy;                                 
-  //map<string,TH1F*> _h1Eta;
-  //map<string,TH1F*> _h1Phi;
-  //map<string,TH2F*> _h2EtaPhiMap;
-  //map<string,TH1F*> _h1DeltaEta;                                   
-  //map<string,TH1F*> _h1DeltaPhi;
-  //map<string,TH2F*> _h2DeltaEtaDeltaPhi;
-  //map<string,TH1F*> _h1Trig;
-  //map<string,TH1F*> _h1Weight;
-  //map<string,TH1F*> _h1Counter; 
   
+
   /*
    * Helper Functions
    */

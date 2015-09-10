@@ -63,14 +63,28 @@ void RecoHistograms::Loop()
      if(jentry%1000 == 0) cout << jentry << endl;
      //Long64_t ientry = LoadTree(jentry);
 
-     /*                                           
-      * NLO Weight 
+     /*
+      * Select Channel
       */
-     double nlo_weight = LHEWeight_weights->at(0);
-   
-     string channel_type = "All";
+    
+     string channel_type = SelectChannel();
+     
+     /*
+      * Cut on Photons Location
+      * Do Not Select Events where both photons are in the EndCap (or Other)
+      */
+ 
+     if(SelectPhotonsLocation() == "EEEE" || SelectPhotonsLocation()== "Other") continue;
+
+     /*
+      * Make Histograms
+      */ 
      
      MakeBasicHistograms(channel_type);
+     
+     if(CutValues::DO_UNWEIGHTED){
+       MakeUnweightedHistograms(channel_type);
+     }
 
    }
 }
@@ -88,6 +102,17 @@ void RecoHistograms::MakeBasicHistograms(string channel_type){
 }
 
 /*
+ * Unweighted Histograms - All events are given a weight of 1
+ */
+void RecoHistograms::MakeUnweightedHistograms(string channel_type){
+  double weight = 1;
+  string prefix = channel_type +"_unweighted";
+  MakeHistograms(prefix, weight);
+
+}
+
+
+/*
  * Make Standard Histograms.
  * The lead and sub-lead reconstructed photons are stored in the 
  * tree branches pt_leadph12 and pt_sublph12 - already declared
@@ -97,4 +122,41 @@ void RecoHistograms::MakeHistograms(string prefix, double weight){
   histogram_builder_.FillCountHistograms(prefix, weight);
   histogram_builder_.FillPtHistograms(prefix, pt_leadph12, weight); 
   histogram_builder_.FillPtCategoryHistograms(prefix, pt_leadph12, weight);
+}
+
+/*
+ * Uses the trigger and number of leptons to select whether the event
+ * is in the electron or muon channels.
+ */
+string RecoHistograms::SelectChannel(){
+  // Electron Channel
+
+  if(el_passtrig_n> 0 &&  el_n==1 && mu_n==0){
+    return "ElectronChannel";
+  }
+
+  // Muon Channel
+  if(mu_passtrig25_n >0 && el_n == 0 && mu_n == 1){
+    return "MuonChannel";
+  }
+  // Otherwise
+  return "Other";
+}
+
+/*
+ * Categorize the Event by the Location of the Lead
+ * and Subleading Photons in the Detector's Barrel
+ * or EndCap.
+ */
+string RecoHistograms::SelectPhotonsLocation(){
+  // Both in Barrel (EBEB)
+  if(isEB_leadph12 and isEB_sublph12) return "EBEB";
+  //   Lead in Barrel Subl in EndCap (EBEE)
+  if(isEB_leadph12 and isEE_sublph12) return "EBEE";
+  // Lead in EndCap Subl in Barrel (EEEB)
+  if(isEE_leadph12 and isEB_sublph12) return "EEEB";
+  // Both in EndCap (EEEE)
+  if(isEE_leadph12 and isEE_sublph12) return "EEEE";
+  // Otherwise
+  return "Other";
 }
