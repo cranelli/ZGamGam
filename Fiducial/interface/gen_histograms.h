@@ -26,7 +26,7 @@
 
 #include <map>
 
-vector <string> puweight_names;
+
 
 
 struct WeightNamePair {
@@ -39,7 +39,6 @@ struct WeightNamePair {
 class GenHistograms {
 
  private :
-  vector<WeightNamePair> GetPileUpReweights();
 
  public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
@@ -92,9 +91,10 @@ class GenHistograms {
 
    //My leaf types
 
+   //PileUp Reweights
    map<string, Float_t>  PU_Reweights;
-   // Each PDF contains two parton distribution functions
-   //pair<vector<double> *, vector<double> * > orig_pdf_pair;
+   
+   // PDF Reweights - Contains two parton distribution functions, one for each proton
    map<string, pair<vector<double> *, vector<double> * > > PDF_Reweights;
 
    // List of branches
@@ -169,11 +169,13 @@ class GenHistograms {
 
    MCParticleData SelectLead(vector<MCParticleData> & photons);
 
+   /*
    void MakeCheckHistograms(HistogramBuilder & histograms, string prefix,
                             vector<MCParticleData> photons,
                             vector<MCParticleData> electrons,
                             vector<MCParticleData> muons,
                             vector<MCParticleData> neutrinos);
+   */
 
    MCParticleData MakeParticle(int mc_index);
 
@@ -309,7 +311,6 @@ void GenHistograms::Init(TTree *tree)
    for(unsigned int pu_name_index = 0; pu_name_index < pu_reweight_names.size(); pu_name_index++){
      string pu_reweight_name = pu_reweight_names[pu_name_index];
      fChain->SetBranchAddress(pu_reweight_name.c_str(), &PU_Reweights[pu_reweight_name]);
-     //fChain->SetBranchAddress(puweight_names[pu_index].c_str(), PUWeights[pu_index], b_PUWeights[pu_index]);
    }
    //PDF Reweights
    for(unsigned int pdf_name_index = 0; pdf_name_index < pdf_set_names.size(); pdf_name_index++){

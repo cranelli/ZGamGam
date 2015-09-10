@@ -1,6 +1,6 @@
 /*
  * Example Execution
- * ./GenHistograms.exe  "/data/users/cranelli/WGamGam/Acceptances/Dressed/CommonFiducial_NLO_wMT_Dress500MeV_Skim_PUWeights_PDFReweights/job_NLO_WAA_FSR/tree.root" "../Histograms/FSR_Dressed_GEN_Histograms.root"
+ * ./GenHistograms.exe  "/data/users/cranelli/WGamGam/Acceptances/Dressed/CommonFiducial_NLO_wMT_Dress500MeV_Skim_PUWeights_PDFReweights/job_NLO_WAA_FSR/tree.root" "Histograms/FSR_Dressed_GEN_Histograms.root"
  */
 #define gen_histograms_cxx
 #include "gen_histograms.h"
@@ -17,7 +17,6 @@
 #include "cut_values.h"
 #include "mc_particle_data.h"
 #include "object_cuts.h"
-#include "event_cuts.h"
 #include "histogram_builder.h"
 
 #include <iostream>

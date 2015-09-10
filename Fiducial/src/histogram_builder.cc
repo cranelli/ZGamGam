@@ -47,9 +47,12 @@ void HistogramBuilder::FillCutFlowHistograms(string prefix, int cut_step, double
   histograms_[key]->Fill(cut_step, weight);
 }
 
+
 /*
  *Pt Histograms
  */
+
+
 void HistogramBuilder::FillPtHistograms(string prefix, float pt, double weight){
   string key = prefix+"_Pt";
   if(!histograms_.count(key)){
@@ -62,6 +65,7 @@ void HistogramBuilder::FillPtHistograms(string prefix, float pt, double weight){
   } 
   histograms_[key]->Fill(pt, weight);
 }
+
 
 void HistogramBuilder::FillPtCategoryHistograms(string prefix, 
 						float pt, double weight){
@@ -77,6 +81,7 @@ void HistogramBuilder::FillPtCategoryHistograms(string prefix,
   } 
   histograms_[key]->Fill(pt, weight);
 }
+
 
 void HistogramBuilder::FillEtaHistograms(string prefix, float eta, double weight){
   string key = prefix + "_Eta";
@@ -128,15 +133,14 @@ void HistogramBuilder::fillEtaPhiHistograms(float eta, float phi, string key, do
 void HistogramBuilder::FillCountHistograms(string prefix, double weight){
   string key = prefix + "_Count";
   if(!histograms_.count(key)){                                                   
-    histograms_[key] = new TH1F(Form("%s_Count",key.c_str()),    
-                                               Form("%s Count",key.c_str()),    
-                                               2, 0, 2);
+    histograms_[key] = new TH1F(key.c_str(),key.c_str(),
+				2, 0, 2);
     histograms_[key]->GetYaxis()->SetTitle("Counts");
     histograms_[key]->Sumw2();
   }                                                                             
   histograms_[key]->Fill(1, weight);
 }
-                                                                             
+                                                                           
 
 /*      
  *Weight Histograms
