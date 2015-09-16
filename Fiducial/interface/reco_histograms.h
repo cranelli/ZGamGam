@@ -17,32 +17,48 @@
 #include "cut_values.h"
 
 // Header file for the classes stored in the TTree if any.
+#include <algorithm>
 #include <vector>
 #include <map>
 #include <string>
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
+struct ReweightTriplet{
+  Float_t orig;
+  Float_t up;
+  Float_t down;
+};
+
 class RecoHistograms {
  private :
   string SelectChannel();
   string SelectPhotonsLocation();
-  
+  double CalcScaleFactor(string channel_type);
+  double CalcSFReweight(double orig_weight, double new_weight);
+  double CalcPDFReweight(pair<vector<double> * , vector<double> * > orig_pdf_pair, 
+			 pair<vector<double> * , vector<double> * > new_pdf_pair, 
+			 int new_eigenvector_index);
+
  public :
-   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
-   Int_t           fCurrent; //!current Tree number in a TChain
-
-
-   //My Stuff
-   HistogramBuilder histogram_builder_;
-   void MakeHistograms(string prefix, double weight);   
-   void MakeBasicHistograms(string channel_type);   
-   void MakeUnweightedHistograms(string channel_type);
-
-   // Declaration of leaf types
-   vector<float>   *LHEWeight_weights;
-   vector<string>  *LHEWeight_ids;
-   Int_t           run;
+  //My Stuff
+  HistogramBuilder histogram_builder_;
+  void MakeHistograms(string prefix, double weight);   
+  void MakeBasicHistograms(string channel_type);   
+  void MakeUnweightedHistograms(string channel_type);
+  void MakePileUpReweightHistograms(string channel_type);
+  void MakeNLOReweightHistograms(string channel_type);
+  void MakeCentralPDFReweightHistograms(string channel_type);
+  void MakeEigenvectorPDFReweightHistograms(string channel_type);
+  void MakeScaleFactorReweightHistograms(string channel_type);
+  
+  TTree          *fChain;   //!pointer to the analyzed TTree or TChain
+  Int_t           fCurrent; //!current Tree number in a TChain
+  
+  // Declaration of leaf types
+  vector<float>   *LHEWeight_weights;
+  vector<string>  *LHEWeight_ids;
+  Int_t           run;
    Long64_t        event;
    Int_t           lumis;
    Bool_t          isData;
@@ -392,6 +408,12 @@ class RecoHistograms {
 
    //PileUp Reweights                                                    
    map<string, Float_t>  PU_Reweights;
+
+   // Scale Factor Reweights
+   map<string, ReweightTriplet> SF_Reweights;
+   //map<string, ReweightTriplet> Electron_Channel_SF_Reweights;
+   //map<string, ReweightTriplet> Muon_Channel_SF_Reweights;
+
    // PDF Reweights - Contains two parton distribution functions, one for each proton                          
    map<string, pair<vector<double> *, vector<double> * > > PDF_Reweights;   
 
@@ -927,6 +949,45 @@ void RecoHistograms::Init(TTree *tree)
      PU_Reweights[pu_reweight_names[pu_name_index]] = 0;
    }
 
+   //Scale Factor Reweights (Triplet Holds Original, SF varied 1 sigma UP and 1 sigma DN)
+
+
+   vector<string> electron_channel_sf_names = CutValues::ELECTRON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES();
+   vector<string> muon_channel_sf_names = CutValues::MUON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES();
+   //Concat Vectors and Remove Duplicates
+   vector<string> all_sf_names = electron_channel_sf_names;
+   all_sf_names.insert(all_sf_names.end(), muon_channel_sf_names.begin(), muon_channel_sf_names.end());
+   all_sf_names.erase( unique(all_sf_names.begin(), all_sf_names.end()), all_sf_names.end());
+
+
+   for(vector<string>::iterator it = all_sf_names.begin(); it != all_sf_names.end(); it++){
+     string sf_name = *it;
+     SF_Reweights[sf_name].orig = 0;
+     SF_Reweights[sf_name].up = 0;
+     SF_Reweights[sf_name].down = 0;
+   }
+
+
+   /*
+   // Electron Channel
+   vector<string> electron_channel_sf_reweight_names = CutValues::ELECTRON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES();
+   for(unsigned int sf_name_index =0; sf_name_index < electron_channel_sf_reweight_names.size(); sf_name_index++){ 
+     //Electron_Channel_SF_Reweights[electron_channel_sf_reweight_names[sf_name_index]] = null_triplet;
+     Electron_Channel_SF_Reweights[electron_channel_sf_reweight_names[sf_name_index]].orig = 0;
+     Electron_Channel_SF_Reweights[electron_channel_sf_reweight_names[sf_name_index]].up = 0;
+     Electron_Channel_SF_Reweights[electron_channel_sf_reweight_names[sf_name_index]].down = 0;
+   }
+
+   //Muon Channel
+   vector<string> muon_channel_sf_reweight_names = CutValues::MUON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES();
+   for(unsigned int sf_name_index =0; sf_name_index < muon_channel_sf_reweight_names.size(); sf_name_index++){ 
+     //Muon_Channel_SF_Reweights[muon_channel_sf_reweight_names[sf_name_index]] = null_triplet;
+     Muon_Channel_SF_Reweights[muon_channel_sf_reweight_names[sf_name_index]].orig = 0;
+     Muon_Channel_SF_Reweights[muon_channel_sf_reweight_names[sf_name_index]].up = 0;
+     Muon_Channel_SF_Reweights[muon_channel_sf_reweight_names[sf_name_index]].down = 0;
+   }
+   */
+	 
    // PDF Reweights 
    vector<string> pdf_set_names = CutValues::PDF_REWEIGHT_NAMES();
    for(vector<string>::iterator it = pdf_set_names.begin(); it != pdf_set_names.end(); it++){
@@ -1294,6 +1355,34 @@ void RecoHistograms::Init(TTree *tree)
      fChain->SetBranchAddress(pu_reweight_name.c_str(), &PU_Reweights[pu_reweight_name]);
    }
 
+   /*
+    * SF Reweights
+    */ 
+   for(vector<string>::iterator it = all_sf_names.begin(); it != all_sf_names.end(); it++){
+     string sf_name = *it;
+     fChain->SetBranchAddress(sf_name.c_str(), &SF_Reweights[sf_name].orig); 
+     fChain->SetBranchAddress((sf_name + "UP").c_str(), &SF_Reweights[sf_name].up); 
+     fChain->SetBranchAddress((sf_name + "DN").c_str(), &SF_Reweights[sf_name].down); 
+   }
+
+   /*
+   // Electron Channel Scale Factors
+   for(unsigned int sf_name_index =0; sf_name_index < electron_channel_sf_reweight_names.size(); sf_name_index++){ 
+     string sf_reweight_name = electron_channel_sf_reweight_names[sf_name_index];
+     fChain->SetBranchAddress(sf_reweight_name.c_str(), &Electron_Channel_SF_Reweights[sf_reweight_name].orig);
+     fChain->SetBranchAddress((sf_reweight_name+"UP").c_str(), &Electron_Channel_SF_Reweights[sf_reweight_name].up);
+     fChain->SetBranchAddress((sf_reweight_name+"DN").c_str(), &Electron_Channel_SF_Reweights[sf_reweight_name].down);
+   }
+
+    // Muon Channel Scale Factors
+   for(unsigned int sf_name_index =0; sf_name_index < muon_channel_sf_reweight_names.size(); sf_name_index++){ 
+     string sf_reweight_name = muon_channel_sf_reweight_names[sf_name_index];
+     fChain->SetBranchAddress(sf_reweight_name.c_str(), &Muon_Channel_SF_Reweights[sf_reweight_name].orig);
+     fChain->SetBranchAddress((sf_reweight_name+"UP").c_str(), &Muon_Channel_SF_Reweights[sf_reweight_name].up);
+     fChain->SetBranchAddress((sf_reweight_name+"DN").c_str(), &Muon_Channel_SF_Reweights[sf_reweight_name].down);
+   }
+   */
+  
    //PDF Reweights                                                                                                  
    for(unsigned int pdf_name_index = 0; pdf_name_index < pdf_set_names.size(); pdf_name_index++){
      string pdf_set_name = pdf_set_names[pdf_name_index];

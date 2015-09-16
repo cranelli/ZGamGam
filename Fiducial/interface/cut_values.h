@@ -94,6 +94,32 @@ class CutValues {
     return PU_REWEIGHT_NAMES;
   }
 
+  // Scale Factor Reweights
+  
+  const static bool DO_SCALEFACTOR_REWEIGHT = true;
+ 
+ // Electron Channel Scale Factors Reweight Names
+
+  static vector<string> ELECTRON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES(){
+    //Declared Here
+    string electron_channel_scalefactor_reweight_names[] = {"el_trigSF", "ph_idSF", "ph_evetoSF"};
+    static const vector<string> ELECTRON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES(electron_channel_scalefactor_reweight_names, 
+						  electron_channel_scalefactor_reweight_names + sizeof electron_channel_scalefactor_reweight_names / sizeof electron_channel_scalefactor_reweight_names[0]);
+    return ELECTRON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES;
+  }
+
+
+  // Muon Channel Scale Factors Reweight Names
+
+  static vector<string> MUON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES(){
+    //Declared Here
+    string muon_channel_scalefactor_reweight_names[] = {"mu_trigSF", "mu_isoSF",  "mu_idSF", "ph_idSF" };
+    static const vector<string> MUON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES(muon_channel_scalefactor_reweight_names, 
+						  muon_channel_scalefactor_reweight_names + sizeof muon_channel_scalefactor_reweight_names / sizeof muon_channel_scalefactor_reweight_names[0]);
+    return MUON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES;
+  }
+
+
   //NLO Reweight Indices And Names (Factorization and Renormalization LHEWeight_weights[index])
 
   const static bool DO_NLO_REWEIGHT = true;
