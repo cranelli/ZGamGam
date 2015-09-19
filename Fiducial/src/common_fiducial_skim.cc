@@ -206,7 +206,7 @@ void CommonFiducialSkim::MakeCheckHistograms(HistogramBuilder & histograms, stri
 
 void MakeParticleDataHistograms(HistogramBuilder & histograms, string prefix, vector<MCParticleData> particles){
   for( vector<MCParticleData>::iterator particle = particles.begin(); particle != particles.end(); ++particle){
-    histograms.fillPtHistograms(prefix, particle->GetFourVector().Pt());
+    histograms.FillPtHistograms(prefix, particle->GetFourVector().Pt());
   }
 }
 

@@ -38,6 +38,7 @@ class CutValues {
   static const float LEPTON_CANDIDATE_MIN_PT = 25;
   static const float LEPTON_CANDIDATE_MAX_ETA = 2.5;
 
+
   /*
    * Event Cuts
    */
@@ -47,6 +48,8 @@ class CutValues {
   static const float PHOTON_PHOTON_MIN_DR = 0.4;
   static const float PHOTON_LEPTON_MIN_DR = 0.4;
   static const float MIN_MT = 40;
+
+  static const float MIN_LEAD_PHOTON_PT = 40;
 
   //Lepton Parents are  W's and Tau's + quarks and gluons
 

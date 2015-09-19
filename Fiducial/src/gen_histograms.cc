@@ -104,13 +104,15 @@ void GenHistograms::Loop()
      vector<MCParticleData> candidate_muons = ObjectCuts::SelectLeptons(dressed_muons);
      vector<MCParticleData> candidate_neutrinos = ObjectCuts::SelectNeutrinos(neutrinos);
      
-     // Event Cuts (Already Handled by the Root File Skim)
-     
+     // Event Cuts (Already Handled by the Root File Skim, except Lead Photon Pt Cut)
+     if(SelectLead(candidate_photons).GetFourVector().Pt() < CutValues::MIN_LEAD_PHOTON_PT) continue;
+
      /*                                                                                                 
       * Make Histograms                                                                                 
       */
      
-     string decay_type = "All";
+     string decay_type = SelectDecayType(candidate_electrons, candidate_muons);
+
      MakeBasicHistograms(decay_type, candidate_photons);
      
      if(CutValues::DO_UNWEIGHTED){
@@ -263,22 +265,6 @@ void GenHistograms::MakeHistograms(string prefix, vector<MCParticleData> & photo
   histogram_builder_.FillPtCategoryHistograms(prefix, lead_photon_pt, weight);
 }
 
-/*                            
- * Return the photon in the event, with the Lead                                             
- * Transverse Momentum
- */
-MCParticleData GenHistograms::SelectLead(vector<MCParticleData> & photons){
-  double maxPt = 0;
-  MCParticleData lead;// = NULL; 
-  for(vector<MCParticleData>::iterator it = photons.begin(); it != photons.end(); ++it){
-    float pt = it->GetFourVector().Pt();
-    if( pt > maxPt){
-      maxPt = pt;
-      lead = *it;
-    }
-  }
-  return lead;
-}
 
 /*                        
  * Dresses leptons with photons within dR cut,                                                       
@@ -365,4 +351,52 @@ MCParticleData GenHistograms::MakeParticle(int mc_index){
   particle.SetMCParentage(mcParentage->at(mc_index));
 
   return particle;
+}
+
+/*
+ * Categorizes the Event by the Decay Type.
+ * Whether the lepton is an Electron or Muon,
+ * and if it is from W or tau decay.
+ */
+
+string GenHistograms::SelectDecayType(vector<MCParticleData> & candidate_electrons, vector<MCParticleData> & candidate_muons){
+  // Electrons
+  if(candidate_electrons.size() == 1 && candidate_muons.size() == 0){
+    MCParticleData candidate_electron = candidate_electrons[0];  // Should only be 1
+    if(abs(candidate_electron.GetMomPID()) == CutValues::TAU_PDGID){
+      return "TauToElectronDecay";
+    } else {
+      return "ElectronDecay";
+    }
+  } 
+
+  //Muons
+  if(candidate_muons.size()== 1 && candidate_electrons.size() == 0){
+    MCParticleData candidate_muon = candidate_muons[0];  // Should only be 1
+    if(abs(candidate_muon.GetMomPID()) == CutValues::TAU_PDGID){
+      return "TauToMuonDecay";
+    } else {
+      return "MuonDecay";
+    }
+  }
+  return "OtherDecay";
+
+}
+
+
+/*                            
+ * Return the photon in the event, with the Lead                                             
+ * Transverse Momentum
+ */
+MCParticleData GenHistograms::SelectLead(vector<MCParticleData> & photons){
+  double maxPt = 0;
+  MCParticleData lead;// = NULL; 
+  for(vector<MCParticleData>::iterator it = photons.begin(); it != photons.end(); ++it){
+    float pt = it->GetFourVector().Pt();
+    if( pt > maxPt){
+      maxPt = pt;
+      lead = *it;
+    }
+  }
+  return lead;
 }

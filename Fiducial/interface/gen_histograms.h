@@ -27,20 +27,34 @@
 #include <map>
 
 
-
-
-struct WeightNamePair {
-  string name;
-  float * weight;
-};
-
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
 class GenHistograms {
 
  private :
+  string SelectDecayType(vector<MCParticleData> & candidate_electrons, vector<MCParticleData> & candidate_muons);
 
  public :
+  // My Stuff
+   HistogramBuilder histogram_builder_;
+   vector<MCParticleData> AssignParticleByIDandStatus(int pdgID, int status);
+   vector<MCParticleData> AssignParticleByIDandStatus(vector<int> pdgIDs, int status);
+   vector<MCParticleData> Dress(vector<MCParticleData> & leptons,
+                                vector<MCParticleData> & dressing_photons);
+
+   void MakeHistograms(string prefix, vector<MCParticleData> & photons, float weight);
+
+   void MakeBasicHistograms(string decay_type, vector<MCParticleData> & candidate_photons);
+   void MakeUnweightedHistograms(string decay_type, vector<MCParticleData> & candidate_photons);
+   void MakePileUpReweightHistograms(string decay_type, vector<MCParticleData> & photons);
+   void MakeNLOReweightHistograms(string decay_type, vector<MCParticleData> & photons);
+   void MakeCentralPDFReweightHistograms(string decay_type, vector<MCParticleData> & photons);
+   void MakeEigenvectorPDFReweightHistograms(string decay_type, vector<MCParticleData> & photons);
+   double CalcPDFReweight(pair<vector<double> *, vector<double> * > orig_pdf_pair, 
+			  pair<vector<double> *, vector<double> * > new_pdf_pair, int new_eigenvector_index);
+
+   MCParticleData SelectLead(vector<MCParticleData> & photons);
+
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
@@ -149,25 +163,7 @@ class GenHistograms {
    virtual void     Init(TTree *tree);
    virtual void     Loop();
 
-   // My Stuff
-   HistogramBuilder histogram_builder_;
-   vector<MCParticleData> AssignParticleByIDandStatus(int pdgID, int status);
-   vector<MCParticleData> AssignParticleByIDandStatus(vector<int> pdgIDs, int status);
-   vector<MCParticleData> Dress(vector<MCParticleData> & leptons,
-                                vector<MCParticleData> & dressing_photons);
-
-   void MakeHistograms(string prefix, vector<MCParticleData> & photons, float weight);
-
-   void MakeBasicHistograms(string decay_type, vector<MCParticleData> & candidate_photons);
-   void MakeUnweightedHistograms(string decay_type, vector<MCParticleData> & candidate_photons);
-   void MakePileUpReweightHistograms(string decay_type, vector<MCParticleData> & photons);
-   void MakeNLOReweightHistograms(string decay_type, vector<MCParticleData> & photons);
-   void MakeCentralPDFReweightHistograms(string decay_type, vector<MCParticleData> & photons);
-   void MakeEigenvectorPDFReweightHistograms(string decay_type, vector<MCParticleData> & photons);
-   double CalcPDFReweight(pair<vector<double> *, vector<double> * > orig_pdf_pair, 
-			  pair<vector<double> *, vector<double> * > new_pdf_pair, int new_eigenvector_index);
-
-   MCParticleData SelectLead(vector<MCParticleData> & photons);
+   
 
    /*
    void MakeCheckHistograms(HistogramBuilder & histograms, string prefix,

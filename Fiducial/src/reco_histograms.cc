@@ -74,6 +74,7 @@ void RecoHistograms::Loop()
       */
  
      if(SelectPhotonsLocation() == "EEEE" || SelectPhotonsLocation()== "Other") continue;
+     if(pt_leadph12 < CutValues::MIN_LEAD_PHOTON_PT) continue;
 
      /*
       * Make Histograms
@@ -84,7 +85,6 @@ void RecoHistograms::Loop()
      if(CutValues::DO_UNWEIGHTED){
        MakeUnweightedHistograms(channel_type);
      }
-
      if(CutValues::DO_PILEUP_REWEIGHT){
        MakePileUpReweightHistograms(channel_type);
      }
@@ -124,6 +124,7 @@ void RecoHistograms::MakeBasicHistograms(string channel_type){
   double nlo_weight = LHEWeight_weights->at(0);
   double scale_factor = CalcScaleFactor(channel_type);
   double weight = nlo_weight * PUWeight * scale_factor;
+  //cout << weight << endl;
   string prefix = channel_type + "_ScaleFactors";
   MakeHistograms(prefix, weight);
 
@@ -248,31 +249,13 @@ void RecoHistograms::MakeScaleFactorReweightHistograms(string channel_type){
 
     // Vary 1 Sigma DN
     double scalefactor_reweight_down = CalcSFReweight(scale_factor_triplet.orig, scale_factor_triplet.down);
+    if(scalefactor_reweight_down == 0) cout << sf_name << endl;
     string prefix_down = channel_type + "_" + sf_name + "DN";
     double weight_down = nlo_weight * PUWeight * scale_factor * scalefactor_reweight_down;
     MakeHistograms(prefix_down, weight_down);
 
   }
 
-  /*
-  for( map< string, ReweightTriplet >::iterator it = SF_Reweights->begin(); it != SF_Reweights->end(); it++){
-    string sf_name = it->first;
-    ReweightTriplet scale_factor_triplet = it->second;
-    // Vary 1 Sigma UP
-    double scalefactor_reweight_up = CalcSFReweight(scale_factor_triplet.orig, scale_factor_triplet.up);
-    //cout << ph_idSF << endl;
-    if(scalefactor_reweight_up == 0) cout << sf_name << endl;
-    string prefix_up = channel_type + "_" + sf_name + "UP";
-    double weight_up = nlo_weight * PUWeight * scale_factor * scalefactor_reweight_up;
-    MakeHistograms(prefix_up, weight_up);
-
-    // Vary 1 Sigma DN
-    double scalefactor_reweight_down = CalcSFReweight(scale_factor_triplet.orig, scale_factor_triplet.down);
-    string prefix_down = channel_type + "_" + sf_name + "DN";
-    double weight_down = nlo_weight * PUWeight * scale_factor * scalefactor_reweight_down;
-    MakeHistograms(prefix_down, weight_down);
-  }    
-  */
 }
 
 
@@ -283,22 +266,37 @@ void RecoHistograms::MakeScaleFactorReweightHistograms(string channel_type){
  */
 double RecoHistograms::CalcScaleFactor(string channel_type){
   double scale_factor = 1;
+  vector<string> channel_sf_names;
+  if(channel_type == "ElectronChannel")  channel_sf_names = CutValues::ELECTRON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES();
+  if(channel_type == "MuonChannel") channel_sf_names = CutValues::MUON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES();
+
+  for(vector<string>::iterator it = channel_sf_names.begin(); it != channel_sf_names.end(); it++){
+    string sf_name = *it;
+    ReweightTriplet scale_factor_triplet = SF_Reweights[sf_name];
+    scale_factor *= scale_factor_triplet.orig;
+  }
+  /*
   if(channel_type == "ElectronChannel"){
     scale_factor = el_trigSF * ph_idSF * ph_evetoSF;
   }
   if(channel_type == "MuonChannel"){
     scale_factor = mu_trigSF*mu_isoSF*mu_idSF*ph_idSF;
   }
+    */
   
   return scale_factor;
 }
 
-double RecoHistograms::CalcSFReweight(double orig_weight, double new_weight){
-  if(orig_weight ==0 ){
-    cout << "Error with Reweighting, original weight is 0" << endl;
+/*
+ * Given the amount to reweight the event by, base on the ratio
+ * of the new SF to the old SF.
+ */
+double RecoHistograms::CalcSFReweight(double orig_sf, double new_sf){
+  if(orig_sf ==0 ){
+    cout << "Error with Reweighting, original sf is 0" << endl;
     return 0;
   }
-  return new_weight / orig_weight;
+  return new_sf / orig_sf;
 }
 	
 
