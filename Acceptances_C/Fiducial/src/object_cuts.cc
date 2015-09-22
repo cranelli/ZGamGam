@@ -95,6 +95,7 @@ vector<MCParticleData> ObjectCuts::SelectLeptons(vector<MCParticleData> & lepton
   return select_leptons;
 }
 
+/*
 vector<MCParticleData> ObjectCuts::SelectNeutrinos(vector<MCParticleData> & neutrinos){
   
   vector<MCParticleData> select_neutrinos;
@@ -109,7 +110,7 @@ vector<MCParticleData> ObjectCuts::SelectNeutrinos(vector<MCParticleData> & neut
   }
   return select_neutrinos;
 }
-
+*/
 
 bool PassPtCut(MCParticleData & particle, float min_pt){
   return (particle.GetFourVector().Pt() > min_pt);
