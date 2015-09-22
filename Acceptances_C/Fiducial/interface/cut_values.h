@@ -51,17 +51,18 @@ class CutValues {
   static const float MIN_LEAD_LEPTON_PT=20;
   static const float MIN_DILEPTON_MASS = 40;
 
-  //Lepton Parents are  W's and Tau's + quarks and gluons
+  //Lepton Parents are  Z's and Tau's (Plus for missing Z's quarks and gluons)
 
   //Wrote Functions to Store Vectors
   static vector<int> LEPTON_CANDIDATE_PARENT_PDGIDS(){
-    int lep_moms[8] = {1,2,3,4,5,15, 21, 24};
+    int lep_moms[8] = {1,2,3,4,5,15, 21, 23};
     static const vector<int> LEPTON_CANDIDATE_PARENT_PDGIDS(lep_moms,
 							    lep_moms + 
 							    sizeof lep_moms / sizeof lep_moms[0]);
     return LEPTON_CANDIDATE_PARENT_PDGIDS;
   }
 
+  /*
   static vector<int> NEUTRINO_CANDIDATE_PARENT_PDGIDS(){int nu_moms[8] = {1,2,3,4,5,15,21,24};
     static const vector<int> NEUTRINO_CANDIDATE_PARENT_PDGIDS(nu_moms,
 							    nu_moms + 
@@ -76,7 +77,7 @@ class CutValues {
 					     sizeof nu_pdgIDs / sizeof nu_pdgIDs[0]);
     return NEUTRINO_PDGIDS;
   }
-
+  */
 
 
   /*
