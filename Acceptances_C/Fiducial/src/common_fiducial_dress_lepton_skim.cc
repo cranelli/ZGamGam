@@ -71,7 +71,7 @@ void CommonFiducialDressLeptonSkim::Loop(TTree * skim_tree, HistogramBuilder & h
 
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
      fChain->GetEntry(jentry);
-     if(jentry%1000 == 0) cout << jentry << endl;
+     if(jentry%10000 == 0) cout << jentry << endl;
 
      //cout << "Event: " << event << endl;
      
@@ -99,22 +99,19 @@ void CommonFiducialDressLeptonSkim::Loop(TTree * skim_tree, HistogramBuilder & h
      //vector<MCParticleData> neutrinos = AssignParticleByIDandStatus(CutValues::NEUTRINO_PDGIDS(), 
      //							    CutValues::FINAL_STATE_STATUS);
 
-     MakeCheckHistograms(histograms, "Assign", photons, 
-			 electrons, muons);
+     //MakeCheckHistograms(histograms, "Assign", photons, electrons, muons);
 
      /*
       * Dressing
       */
      
      vector<MCParticleData> dressing_photons = ObjectCuts::SelectDressPhotons(photons);
-     MakeCheckHistograms(histograms, "Dress0", dressing_photons, 
-			 electrons, muons);
+     //MakeCheckHistograms(histograms, "Dress0", dressing_photons, electrons, muons);
      
      // Dresses Leptons, and removes photons used in dressing
      vector<MCParticleData> dressed_electrons = Dress(electrons, dressing_photons); 
      vector<MCParticleData> dressed_muons = Dress(muons, dressing_photons);
-     MakeCheckHistograms(histograms, "Dress", dressing_photons, 
-			 dressed_electrons, dressed_muons);
+     //MakeCheckHistograms(histograms, "Dress", dressing_photons, dressed_electrons, dressed_muons);
 
      /*
       * Object Cuts
@@ -165,7 +162,7 @@ void CommonFiducialDressLeptonSkim::Loop(TTree * skim_tree, HistogramBuilder & h
 
      // Lepton Lepton Delta R Cuts
      if(!(EventCuts::PassDeltaR(candidate_leptons, candidate_leptons, CutValues::LEPTON_LEPTON_MIN_DR))) continue;
-     histograms.FillCutFlowHistograms(channel, 6, nlo_weight);
+     histograms.FillCutFlowHistograms(channel, 5, nlo_weight);
 
      //Photon Photon Delta R Cuts
      if(!(EventCuts::PassDeltaR(candidate_photons, candidate_photons, CutValues::PHOTON_PHOTON_MIN_DR))) continue;
@@ -174,10 +171,6 @@ void CommonFiducialDressLeptonSkim::Loop(TTree * skim_tree, HistogramBuilder & h
      //Photon Lepton Delta R Cuts
      if(!(EventCuts::PassDeltaR(candidate_photons, candidate_leptons, CutValues::PHOTON_LEPTON_MIN_DR))) continue;
      histograms.FillCutFlowHistograms(channel, 7, nlo_weight);
-
-     
-
-     
      
      keep_event = true;
      
