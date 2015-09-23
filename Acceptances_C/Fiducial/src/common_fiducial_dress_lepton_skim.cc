@@ -134,7 +134,9 @@ void CommonFiducialDressLeptonSkim::Loop(TTree * skim_tree, HistogramBuilder & h
      /*
       * Event Cuts
       */
-     
+     histograms.FillCutFlowHistograms("Electron_Channel", 0, nlo_weight);
+     histograms.FillCutFlowHistograms("Muon_Channel", 0, nlo_weight);
+
      if(!(EventCuts::PassLeptonMultiplicity(candidate_electrons, candidate_muons))) continue;
      
      string channel;
@@ -153,19 +155,29 @@ void CommonFiducialDressLeptonSkim::Loop(TTree * skim_tree, HistogramBuilder & h
      if(!(EventCuts::PassPhotonMultiplicity(candidate_photons))) continue;     
      histograms.FillCutFlowHistograms(channel, 2, nlo_weight);
 
-     //DeltaR Cuts
-     if(!(EventCuts::PassPhotonPhotonDeltaR(candidate_photons))) continue;
-     histograms.FillCutFlowHistograms(channel, 3, nlo_weight);
-     if(!(EventCuts::PassPhotonLeptonDeltaR(candidate_photons, candidate_leptons))) continue;
-     histograms.FillCutFlowHistograms(channel, 4, nlo_weight);
-
      // Lead Lepton Pt Cut
      if(!(EventCuts::PassLeadPt(candidate_leptons, CutValues::MIN_LEAD_LEPTON_PT))) continue;
-     histograms.FillCutFlowHistograms(channel, 6, nlo_weight);
+     histograms.FillCutFlowHistograms(channel, 3, nlo_weight);
 
      // Di-Lepton Mass Cut
      if(!(EventCuts::PassMass(candidate_leptons, CutValues::MIN_DILEPTON_MASS))) continue;
+     histograms.FillCutFlowHistograms(channel, 4, nlo_weight);
+
+     // Lepton Lepton Delta R Cuts
+     if(!(EventCuts::PassDeltaR(candidate_leptons, candidate_leptons, CutValues::LEPTON_LEPTON_MIN_DR))) continue;
+     histograms.FillCutFlowHistograms(channel, 6, nlo_weight);
+
+     //Photon Photon Delta R Cuts
+     if(!(EventCuts::PassDeltaR(candidate_photons, candidate_photons, CutValues::PHOTON_PHOTON_MIN_DR))) continue;
+     histograms.FillCutFlowHistograms(channel, 6, nlo_weight);
+
+     //Photon Lepton Delta R Cuts
+     if(!(EventCuts::PassDeltaR(candidate_photons, candidate_leptons, CutValues::PHOTON_LEPTON_MIN_DR))) continue;
      histograms.FillCutFlowHistograms(channel, 7, nlo_weight);
+
+     
+
+     
      
      keep_event = true;
      

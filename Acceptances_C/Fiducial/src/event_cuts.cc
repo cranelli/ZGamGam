@@ -26,11 +26,29 @@ bool EventCuts::PassPhotonMultiplicity(vector<MCParticleData> & candidate_photon
   return (candidate_photons.size() == CutValues::REQ_NUM_CANDIDATE_PHOTONS);
 }
 
+bool EventCuts::PassDeltaR(vector<MCParticleData> & particles1, vector<MCParticleData> & particles2, float min_delta_r){
+
+  for( unsigned int index1 =0; index1 < particles1.size(); index1++){
+    TLorentzVector particle1 = particles1.at(index1).GetFourVector();
+    
+    for( unsigned int index2 =0; index2 < particles2.size(); index2++){
+      TLorentzVector particle2 = particles2.at(index2).GetFourVector();
+      
+      if(particle1 == particle2) continue;  //Do not compare to itself
+      if(particle1.DeltaR(particle2) < min_delta_r) return false;
+    }
+  }
+  // Only if all pairings pass   
+  return true;
+}
+
 /*
  * Check that the Candidate Photons have the proper DeltaR
  * Separation from each other
  * (There is a double counting inefficiency)
  */
+
+/*
 bool EventCuts::PassPhotonPhotonDeltaR(vector<MCParticleData> & candidate_photons){
   for( unsigned int index1 =0; index1 < candidate_photons.size(); index1++){
     TLorentzVector photon1 = candidate_photons.at(index1).GetFourVector();
@@ -59,6 +77,7 @@ bool EventCuts::PassPhotonLeptonDeltaR(vector<MCParticleData> & candidate_photon
   // Only True if All Pairings Pass
   return true;
 }
+*/
 
 bool EventCuts::PassLeadPt(vector<MCParticleData> & candidate_particles, float lead_pt_cut){
   double lead_pt = 0;

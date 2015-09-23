@@ -47,7 +47,7 @@ class CutValues {
   static const int REQ_NUM_CANDIDATE_PHOTONS=2;
   static const float PHOTON_PHOTON_MIN_DR = 0.4;
   static const float PHOTON_LEPTON_MIN_DR = 0.4;
-  static const float LEPTON_LEPTON_NIN_DR = 0.4;
+  static const float LEPTON_LEPTON_MIN_DR = 0.4;
   static const float MIN_LEAD_LEPTON_PT=20;
   static const float MIN_DILEPTON_MASS = 40;
 

@@ -13,11 +13,11 @@ class EventCuts {
   static bool PassLeptonMultiplicity(vector<MCParticleData> & candidate_electrons, 
 				     vector<MCParticleData> & candidate_muons);
   static bool PassPhotonMultiplicity(vector<MCParticleData> & candidate_photons);
-  static bool PassPhotonPhotonDeltaR(vector<MCParticleData> & candidate_photons);
-  static bool PassPhotonLeptonDeltaR(vector<MCParticleData> & candidate_photons, vector<MCParticleData> & candidate_leptons);  
   static bool PassLeadPt(vector<MCParticleData> & candidate_particles, float pt_cut);
   static bool PassMass(vector<MCParticleData> & candidate_particles, float mass_cut);
-  
+  static bool PassDeltaR(vector<MCParticleData> & candidate_particles1, vector<MCParticleData> & candidate_particles2, float min_delta_r);
+  //static bool PassPhotonPhotonDeltaR(vector<MCParticleData> & candidate_photons);
+  //static bool PassPhotonLeptonDeltaR(vector<MCParticleData> & candidate_photons, vector<MCParticleData> & candidate_leptons);  
   //static bool PassMt(MCParticleData lepton, vector<MCParticleData> & neutrinos);
   
 
