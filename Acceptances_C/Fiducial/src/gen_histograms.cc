@@ -361,8 +361,8 @@ MCParticleData GenHistograms::MakeParticle(int mc_index){
 
 string GenHistograms::SelectDecayType(vector<MCParticleData> & candidate_electrons, vector<MCParticleData> & candidate_muons){
   // Electrons
-  if(candidate_electrons.size() == 1 && candidate_muons.size() == 0){
-    MCParticleData candidate_electron = candidate_electrons[0];  // Should only be 1
+  if(candidate_electrons.size() == CutValues::REQ_NUM_CANDIDATE_LEPTONS && candidate_muons.size() == 0){
+    MCParticleData candidate_electron = candidate_electrons[0];  
     if(abs(candidate_electron.GetMomPID()) == CutValues::TAU_PDGID){
       return "TauToElectronDecay";
     } else {
@@ -371,8 +371,8 @@ string GenHistograms::SelectDecayType(vector<MCParticleData> & candidate_electro
   } 
 
   //Muons
-  if(candidate_muons.size()== 1 && candidate_electrons.size() == 0){
-    MCParticleData candidate_muon = candidate_muons[0];  // Should only be 1
+  if(candidate_muons.size()== CutValues::REQ_NUM_CANDIDATE_LEPTONS && candidate_electrons.size() == 0){
+    MCParticleData candidate_muon = candidate_muons[0];  
     if(abs(candidate_muon.GetMomPID()) == CutValues::TAU_PDGID){
       return "TauToMuonDecay";
     } else {
@@ -380,7 +380,6 @@ string GenHistograms::SelectDecayType(vector<MCParticleData> & candidate_electro
     }
   }
   return "OtherDecay";
-
 }
 
 
