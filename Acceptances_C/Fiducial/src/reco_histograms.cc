@@ -328,12 +328,12 @@ double RecoHistograms::CalcPDFReweight(pair<vector<double> * , vector<double> * 
 string RecoHistograms::SelectChannel(){
   // Electron Channel
 
-  if(el_passtrig_n> 0 &&  el_n==1 && mu_n==0){
+  if(el_passtrig_n> 0 &&  el_n==2 && mu_n==0){
     return "ElectronChannel";
   }
 
   // Muon Channel
-  if(mu_passtrig25_n >0 && el_n == 0 && mu_n == 1){
+  if(mu_passtrig25_n >0 && el_n == 0 && mu_n == 2){
     return "MuonChannel";
   }
   // Otherwise

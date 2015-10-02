@@ -8,7 +8,7 @@
 # ./scripts/make_gen_dressed_hists.sh
 #
 
-GEN_DRESS_SKIM_DIR=/data/users/cranelli/ZGamGam/Fiducial/Dressed/CommonFiducial_NLO_Skim_2015_09_22_PDFReweights/
+GEN_DRESS_SKIM_DIR=/data/users/cranelli/ZGamGam/Fiducial/Dressed/CommonFiducial_NLO_Skim_2015_09_22_PUWeights_PDFReweights/
 
 HISTS_OUTDIR=test/Histograms/CommonFiducial_NLO_Skim_2015_09_22/
 

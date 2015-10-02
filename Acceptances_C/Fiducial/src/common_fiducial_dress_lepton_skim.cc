@@ -71,7 +71,7 @@ void CommonFiducialDressLeptonSkim::Loop(TTree * skim_tree, HistogramBuilder & h
 
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
      fChain->GetEntry(jentry);
-     if(jentry%10000 == 0) cout << jentry << endl;
+     if(jentry%1000 == 0) cout << jentry << endl;
 
      //cout << "Event: " << event << endl;
      

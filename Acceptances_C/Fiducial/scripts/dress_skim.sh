@@ -17,7 +17,7 @@ make dress
 
 #NLO Samples
 
-in_file=llaa_nlo_ggNtuple_part1.root
+in_file=llaa_nlo_ggNtuple.root
 echo "./test/CommonFiducialDressLeptonSkim.exe" $NTUPLES_DIR"/"$in_file $DRESS_OUTDIR"/job_llaa_nlo/Job_0000/tree.root"
 
 ./test/CommonFiducialDressLeptonSkim.exe $NTUPLES_DIR"/"$in_file $DRESS_OUTDIR"/job_llaa_nlo/Job_0000/tree.root"
