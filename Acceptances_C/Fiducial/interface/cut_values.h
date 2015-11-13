@@ -38,7 +38,6 @@ class CutValues {
   static const float LEPTON_CANDIDATE_MIN_PT = 10;
   static const float LEPTON_CANDIDATE_MAX_ETA = 2.5;
 
-
   /*
    * Event Cuts
    */
@@ -106,7 +105,7 @@ class CutValues {
 
   static vector<string> ELECTRON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES(){
     //Declared Here
-    string electron_channel_scalefactor_reweight_names[] = {"el_trigSF", "ph_idSF", "ph_evetoSF"};
+    string electron_channel_scalefactor_reweight_names[] = {"el_diTrigSF", "el_looseIDSF", "ph_idSF", "ph_csevSF"};
     static const vector<string> ELECTRON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES(electron_channel_scalefactor_reweight_names, 
 						  electron_channel_scalefactor_reweight_names + sizeof electron_channel_scalefactor_reweight_names / sizeof electron_channel_scalefactor_reweight_names[0]);
     return ELECTRON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES;
@@ -117,7 +116,7 @@ class CutValues {
 
   static vector<string> MUON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES(){
     //Declared Here
-    string muon_channel_scalefactor_reweight_names[] = {"mu_trigSF", "mu_isoSF",  "mu_idSF", "ph_idSF" };
+    string muon_channel_scalefactor_reweight_names[] = {"mu_diTrigSF", "mu_isoSF",  "mu_idSF", "ph_idSF","ph_csevSF" };
     static const vector<string> MUON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES(muon_channel_scalefactor_reweight_names, 
 						  muon_channel_scalefactor_reweight_names + sizeof muon_channel_scalefactor_reweight_names / sizeof muon_channel_scalefactor_reweight_names[0]);
     return MUON_CHANNEL_SCALEFACTOR_REWEIGHT_NAMES;

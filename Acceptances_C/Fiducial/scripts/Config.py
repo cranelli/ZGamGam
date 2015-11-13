@@ -35,8 +35,8 @@ HIST_TYPES=["Count", "Pt", "Category_Pt"]
 #For Scale Factor Uncertainties 
 DO_SCALEFACTOR_REWEIGHTS=True
 # Channel name must match choice in RECO_GEN_PAIRS                                                                                           
-SFS={ 'MuonChannel': ["mu_trigSF", "mu_isoSF", "mu_idSF", "ph_idSF"],
-    'ElectronChannel': ["el_trigSF", "ph_idSF", "ph_evetoSF"] }
+SFS={ 'MuonChannel': ["mu_diTrigSF", "mu_isoSF", "mu_idSF", "ph_idSF", "ph_csevSF"],
+    'ElectronChannel': ["el_diTrigSF", "el_looseIDSF", "ph_idSF", "ph_csevSF"] }
 
 # For Pileup Systematics
 DO_PUWEIGHT_REWEIGHTS=True
