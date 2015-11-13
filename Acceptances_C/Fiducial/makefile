@@ -5,7 +5,7 @@ ROOT_LIBS = $(shell root-config --glibs)
 FIDUCIAL_INTERFACE = interface
 
 
-all: common dress gen reco
+all: dress gen reco
 
 
 #common:
