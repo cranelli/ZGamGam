@@ -48,7 +48,7 @@ class CutValues {
   static const float PHOTON_LEPTON_MIN_DR = 0.4;
   static const float LEPTON_LEPTON_MIN_DR = 0.4;
   static const float MIN_LEAD_LEPTON_PT=20;
-  static const float MIN_DILEPTON_MASS = 40;
+  static const float MIN_DILEPTON_MASS=40;
 
   //Lepton Parents are  Z's and Tau's (Plus for missing Z's quarks and gluons)
 
