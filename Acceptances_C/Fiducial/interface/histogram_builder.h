@@ -45,7 +45,7 @@ class HistogramBuilder{
  private:
   // For Photon Pt Categories
   const static int num_photon_pt_bins =2;
-  float photon_pt_bin_low_edges[4] = {15, 25, 40};
+  float photon_pt_bin_low_edges[num_photon_pt_bins+1] = {15, 25, 40};
 
   map<string, TH1*> histograms_;
   
