@@ -328,12 +328,16 @@ double RecoHistograms::CalcPDFReweight(pair<vector<double> * , vector<double> * 
 string RecoHistograms::SelectChannel(){
   // Electron Channel
 
-  if(el_passtrig_n> 0 &&  el_n==2 && mu_n==0){
+  //if(passTrig_ele17_ele8_9 &&  el_n==2 && mu_n==0){
+  if( el_n==CutValues::REQ_NUM_CANDIDATE_LEPTONS && mu_n==0){
+  
     return "ElectronChannel";
   }
 
   // Muon Channel
-  if(mu_passtrig25_n >0 && el_n == 0 && mu_n == 2){
+  //if(mu_passtrig25_n >0 && el_n == 0 && mu_n == 2){
+  //if((passTrig_mu17_mu8 || passTrig_mu17_Tkmu8) && el_n == 0 && mu_n == 2){
+  if(el_n == 0 && mu_n == CutValues::REQ_NUM_CANDIDATE_LEPTONS){
     return "MuonChannel";
   }
   // Otherwise
